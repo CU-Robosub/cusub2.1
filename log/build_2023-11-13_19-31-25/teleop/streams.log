@@ -1,0 +1,38 @@
+[0.734s] Invoking command in '/home/william/ros2_ws/src/teleop': PYTHONPATH=/home/william/ros2_ws/build/teleop/prefix_override:/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/teleop build --build-base /home/william/ros2_ws/build/teleop/build install --record /home/william/ros2_ws/build/teleop/install.log --single-version-externally-managed
+[0.960s] running egg_info
+[0.961s] writing ../../build/teleop/teleop.egg-info/PKG-INFO
+[0.961s] writing dependency_links to ../../build/teleop/teleop.egg-info/dependency_links.txt
+[0.961s] writing entry points to ../../build/teleop/teleop.egg-info/entry_points.txt
+[0.961s] writing requirements to ../../build/teleop/teleop.egg-info/requires.txt
+[0.962s] writing top-level names to ../../build/teleop/teleop.egg-info/top_level.txt
+[0.963s] reading manifest file '../../build/teleop/teleop.egg-info/SOURCES.txt'
+[0.964s] writing manifest file '../../build/teleop/teleop.egg-info/SOURCES.txt'
+[0.964s] running build
+[0.964s] running build_py
+[0.964s] running install
+[0.965s] running install_lib
+[0.965s] creating /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop
+[0.965s] copying /home/william/ros2_ws/build/teleop/build/lib/teleop/motorController.py -> /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop
+[0.966s] copying /home/william/ros2_ws/build/teleop/build/lib/teleop/joyListener.py -> /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop
+[0.966s] copying /home/william/ros2_ws/build/teleop/build/lib/teleop/maestro.py -> /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop
+[0.966s] copying /home/william/ros2_ws/build/teleop/build/lib/teleop/__init__.py -> /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop
+[0.966s] copying /home/william/ros2_ws/build/teleop/build/lib/teleop/umaestro.py -> /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop
+[0.966s] byte-compiling /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop/motorController.py to motorController.cpython-310.pyc
+[0.966s] byte-compiling /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop/joyListener.py to joyListener.cpython-310.pyc
+[0.967s] byte-compiling /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop/maestro.py to maestro.cpython-310.pyc
+[0.968s] byte-compiling /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop/__init__.py to __init__.cpython-310.pyc
+[0.968s] byte-compiling /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop/umaestro.py to umaestro.cpython-310.pyc
+[0.968s] running install_data
+[0.969s] creating /home/william/ros2_ws/install/teleop/share/ament_index
+[0.969s] creating /home/william/ros2_ws/install/teleop/share/ament_index/resource_index
+[0.969s] creating /home/william/ros2_ws/install/teleop/share/ament_index/resource_index/packages
+[0.969s] copying resource/teleop -> /home/william/ros2_ws/install/teleop/share/ament_index/resource_index/packages
+[0.969s] copying package.xml -> /home/william/ros2_ws/install/teleop/share/teleop
+[0.969s] creating /home/william/ros2_ws/install/teleop/share/teleop/launch
+[0.969s] copying launch/firstLaunch.py -> /home/william/ros2_ws/install/teleop/share/teleop/launch
+[0.969s] running install_egg_info
+[0.971s] Copying ../../build/teleop/teleop.egg-info to /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop-0.0.0-py3.10.egg-info
+[0.972s] running install_scripts
+[0.989s] Installing joyListener = teleop.joyListener:mainmotorController script to /home/william/ros2_ws/install/teleop/lib/teleop
+[0.989s] writing list of installed files to '/home/william/ros2_ws/build/teleop/install.log'
+[1.006s] Invoked command in '/home/william/ros2_ws/src/teleop' returned '0': PYTHONPATH=/home/william/ros2_ws/build/teleop/prefix_override:/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/teleop build --build-base /home/william/ros2_ws/build/teleop/build install --record /home/william/ros2_ws/build/teleop/install.log --single-version-externally-managed

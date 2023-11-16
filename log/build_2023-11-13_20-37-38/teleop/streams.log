@@ -1,0 +1,24 @@
+[0.753s] Invoking command in '/home/william/ros2_ws/src/teleop': PYTHONPATH=/home/william/ros2_ws/build/teleop/prefix_override:/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/teleop build --build-base /home/william/ros2_ws/build/teleop/build install --record /home/william/ros2_ws/build/teleop/install.log --single-version-externally-managed
+[0.993s] running egg_info
+[0.994s] writing ../../build/teleop/teleop.egg-info/PKG-INFO
+[0.994s] writing dependency_links to ../../build/teleop/teleop.egg-info/dependency_links.txt
+[0.994s] writing entry points to ../../build/teleop/teleop.egg-info/entry_points.txt
+[0.995s] writing requirements to ../../build/teleop/teleop.egg-info/requires.txt
+[0.995s] writing top-level names to ../../build/teleop/teleop.egg-info/top_level.txt
+[0.996s] reading manifest file '../../build/teleop/teleop.egg-info/SOURCES.txt'
+[0.997s] writing manifest file '../../build/teleop/teleop.egg-info/SOURCES.txt'
+[0.997s] running build
+[0.997s] running build_py
+[0.998s] copying teleop/joyListener.py -> /home/william/ros2_ws/build/teleop/build/lib/teleop
+[0.998s] running install
+[0.998s] running install_lib
+[0.999s] copying /home/william/ros2_ws/build/teleop/build/lib/teleop/joyListener.py -> /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop
+[0.999s] byte-compiling /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop/joyListener.py to joyListener.cpython-310.pyc
+[1.000s] running install_data
+[1.000s] running install_egg_info
+[1.002s] removing '/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop-0.0.0-py3.10.egg-info' (and everything under it)
+[1.002s] Copying ../../build/teleop/teleop.egg-info to /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop-0.0.0-py3.10.egg-info
+[1.003s] running install_scripts
+[1.025s] Installing joyListener script to /home/william/ros2_ws/install/teleop/lib/teleop
+[1.025s] writing list of installed files to '/home/william/ros2_ws/build/teleop/install.log'
+[1.054s] Invoked command in '/home/william/ros2_ws/src/teleop' returned '0': PYTHONPATH=/home/william/ros2_ws/build/teleop/prefix_override:/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/teleop build --build-base /home/william/ros2_ws/build/teleop/build install --record /home/william/ros2_ws/build/teleop/install.log --single-version-externally-managed

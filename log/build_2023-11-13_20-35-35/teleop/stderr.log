@@ -1,0 +1,5 @@
+  File "/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop/joyListener.py", line 8
+    import .motorController # Class with motor control functions
+           ^
+SyntaxError: invalid syntax
+

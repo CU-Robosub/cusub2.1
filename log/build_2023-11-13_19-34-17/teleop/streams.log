@@ -1,0 +1,17 @@
+[0.677s] Invoking command in '/home/william/ros2_ws/build/teleop': PYTHONPATH=/home/william/ros2_ws/build/teleop/prefix_override:/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/william/ros2_ws/build/teleop/build --no-deps install_data
+[0.912s] running develop
+[1.060s] running egg_info
+[1.060s] writing teleop.egg-info/PKG-INFO
+[1.061s] writing dependency_links to teleop.egg-info/dependency_links.txt
+[1.061s] writing entry points to teleop.egg-info/entry_points.txt
+[1.061s] writing requirements to teleop.egg-info/requires.txt
+[1.061s] writing top-level names to teleop.egg-info/top_level.txt
+[1.062s] reading manifest file 'teleop.egg-info/SOURCES.txt'
+[1.063s] writing manifest file 'teleop.egg-info/SOURCES.txt'
+[1.064s] running build_ext
+[1.064s] Creating /home/william/ros2_ws/install/teleop/lib/python3.10/site-packages/teleop.egg-link (link to .)
+[1.064s] Installing joyListener script to /home/william/ros2_ws/install/teleop/lib/teleop
+[1.065s] 
+[1.065s] Installed /home/william/ros2_ws/build/teleop
+[1.065s] running install_data
+[1.085s] Invoked command in '/home/william/ros2_ws/build/teleop' returned '0': PYTHONPATH=/home/william/ros2_ws/build/teleop/prefix_override:/home/william/ros2_ws/install/teleop/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/william/ros2_ws/build/teleop/build --no-deps install_data
