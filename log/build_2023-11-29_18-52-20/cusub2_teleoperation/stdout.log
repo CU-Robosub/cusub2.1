@@ -1,0 +1,30 @@
+running egg_info
+writing ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/PKG-INFO
+writing dependency_links to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/dependency_links.txt
+writing entry points to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/entry_points.txt
+writing requirements to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/requires.txt
+writing top-level names to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/top_level.txt
+reading manifest file '../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/SOURCES.txt'
+writing manifest file '../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/Maestro
+copying cusub2_teleoperation/Maestro/maestro.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/Maestro
+copying cusub2_teleoperation/Maestro/__init__.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/Maestro
+copying cusub2_teleoperation/Maestro/umaestro.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/Maestro
+running install
+running install_lib
+creating /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/Maestro
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/Maestro/maestro.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/Maestro
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/Maestro/__init__.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/Maestro
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/Maestro/umaestro.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/Maestro
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/Maestro/maestro.py to maestro.cpython-310.pyc
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/Maestro/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/Maestro/umaestro.py to umaestro.cpython-310.pyc
+running install_data
+running install_egg_info
+removing '/home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info to /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation-0.0.0-py3.10.egg-info
+running install_scripts
+Installing joyListener script to /home/william/cusub2.1/install/cusub2_teleoperation/lib/cusub2_teleoperation
+writing list of installed files to '/home/william/cusub2.1/build/cusub2_teleoperation/install.log'

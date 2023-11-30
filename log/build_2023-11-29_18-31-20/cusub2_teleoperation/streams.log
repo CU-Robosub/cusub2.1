@@ -1,0 +1,21 @@
+[0.643s] Invoking command in '/home/william/cusub2.1/cusub2_teleoperation': PYTHONPATH=/home/william/cusub2.1/build/cusub2_teleoperation/prefix_override:/home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../build/cusub2_teleoperation build --build-base /home/william/cusub2.1/build/cusub2_teleoperation/build install --record /home/william/cusub2.1/build/cusub2_teleoperation/install.log --single-version-externally-managed
+[0.853s] running egg_info
+[0.854s] writing ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/PKG-INFO
+[0.854s] writing dependency_links to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/dependency_links.txt
+[0.854s] writing entry points to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/entry_points.txt
+[0.854s] writing requirements to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/requires.txt
+[0.854s] writing top-level names to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/top_level.txt
+[0.856s] reading manifest file '../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/SOURCES.txt'
+[0.857s] writing manifest file '../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/SOURCES.txt'
+[0.857s] running build
+[0.857s] running build_py
+[0.857s] running install
+[0.857s] running install_lib
+[0.858s] running install_data
+[0.859s] running install_egg_info
+[0.860s] removing '/home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation-0.0.0-py3.10.egg-info' (and everything under it)
+[0.860s] Copying ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info to /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation-0.0.0-py3.10.egg-info
+[0.861s] running install_scripts
+[0.876s] Installing joyListener script to /home/william/cusub2.1/install/cusub2_teleoperation/lib/cusub2_teleoperation
+[0.877s] writing list of installed files to '/home/william/cusub2.1/build/cusub2_teleoperation/install.log'
+[0.893s] Invoked command in '/home/william/cusub2.1/cusub2_teleoperation' returned '0': PYTHONPATH=/home/william/cusub2.1/build/cusub2_teleoperation/prefix_override:/home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../build/cusub2_teleoperation build --build-base /home/william/cusub2.1/build/cusub2_teleoperation/build install --record /home/william/cusub2.1/build/cusub2_teleoperation/install.log --single-version-externally-managed

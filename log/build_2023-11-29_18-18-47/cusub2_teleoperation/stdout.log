@@ -1,0 +1,48 @@
+running egg_info
+creating ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info
+writing ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/PKG-INFO
+writing dependency_links to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/dependency_links.txt
+writing entry points to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/entry_points.txt
+writing requirements to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/requires.txt
+writing top-level names to ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/top_level.txt
+writing manifest file '../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/SOURCES.txt'
+reading manifest file '../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/SOURCES.txt'
+writing manifest file '../build/cusub2_teleoperation/cusub2_teleoperation.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/william/cusub2.1/build/cusub2_teleoperation/build
+creating /home/william/cusub2.1/build/cusub2_teleoperation/build/lib
+creating /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation
+copying cusub2_teleoperation/motorController.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation
+copying cusub2_teleoperation/testMC.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation
+copying cusub2_teleoperation/test.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation
+copying cusub2_teleoperation/joyListener.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation
+copying cusub2_teleoperation/__init__.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation
+copying cusub2_teleoperation/test5.py -> /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation
+running install
+running install_lib
+creating /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/motorController.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/testMC.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/test.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/joyListener.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/__init__.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation
+copying /home/william/cusub2.1/build/cusub2_teleoperation/build/lib/cusub2_teleoperation/test5.py -> /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/motorController.py to motorController.cpython-310.pyc
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/testMC.py to testMC.cpython-310.pyc
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/test.py to test.cpython-310.pyc
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/joyListener.py to joyListener.cpython-310.pyc
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation/test5.py to test5.cpython-310.pyc
+running install_data
+creating /home/william/cusub2.1/install/cusub2_teleoperation/share/ament_index
+creating /home/william/cusub2.1/install/cusub2_teleoperation/share/ament_index/resource_index
+creating /home/william/cusub2.1/install/cusub2_teleoperation/share/ament_index/resource_index/packages
+copying resource/cusub2_teleoperation -> /home/william/cusub2.1/install/cusub2_teleoperation/share/ament_index/resource_index/packages
+copying package.xml -> /home/william/cusub2.1/install/cusub2_teleoperation/share/cusub2_teleoperation
+creating /home/william/cusub2.1/install/cusub2_teleoperation/share/cusub2_teleoperation/launch
+running install_egg_info
+Copying ../build/cusub2_teleoperation/cusub2_teleoperation.egg-info to /home/william/cusub2.1/install/cusub2_teleoperation/lib/python3.10/site-packages/cusub2_teleoperation-0.0.0-py3.10.egg-info
+running install_scripts
+Installing joyListener script to /home/william/cusub2.1/install/cusub2_teleoperation/lib/cusub2_teleoperation
+writing list of installed files to '/home/william/cusub2.1/build/cusub2_teleoperation/install.log'

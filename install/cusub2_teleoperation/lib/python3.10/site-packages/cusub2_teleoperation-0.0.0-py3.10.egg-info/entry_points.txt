@@ -1,0 +1,3 @@
+[console_scripts]
+joyListener = cusub2_teleoperation.joyListener:main
+
