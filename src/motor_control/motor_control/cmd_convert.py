@@ -71,12 +71,12 @@ class cmd_convert(Node):
         zmsg = msg.linear.z
         azmsg = msg.angular.z
         
-        x_targetPWM = self.convert_to_PWM(xmsg)
-        y_targetPWM = self.convert_to_PWM(ymsg)
-        y_inv_targetPWM = self.convert_to_PWM(ymsg, invert=True)
+        x_targetPWM = self.convert_to_PWM(xmsg, invert=True)
+        y_targetPWM = self.convert_to_PWM(ymsg, invert=True)
+        y_inv_targetPWM = self.convert_to_PWM(ymsg, invert=False)
         z_targetPWM = self.convert_to_PWM(zmsg, invert=True)
-        az_targetPWM = self.convert_to_PWM(azmsg, invert=True)
-        az_inv_targetPWM = self.convert_to_PWM(azmsg)
+        az_targetPWM = self.convert_to_PWM(azmsg, invert=False)
+        az_inv_targetPWM = self.convert_to_PWM(azmsg, invert=True)
         
         motors = {0 : self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_inv_targetPWM])),
                   1 : self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_inv_targetPWM])),
