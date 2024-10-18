@@ -19,7 +19,6 @@ install/
 log/
 build/
 *.log
-*.yaml
 *.txt
 
 # The ROS2 workspace build directory
