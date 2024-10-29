@@ -7,9 +7,10 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(example_interfaces REQUIRED)
+find_package(behaviortree_cpp REQUIRED)
+find_package(behaviortree_ros2 REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -23,4 +24,12 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+add_executable(bt_client src/add_two_ints_bt_service.cpp)
+ament_target_dependencies(bt_client rclcpp behaviortree_cpp behaviortree_ros2 example_interfaces)
+
+install(TARGETS
+     bt_client
+  DESTINATION lib/${PROJECT_NAME})
+
 ament_package()
+

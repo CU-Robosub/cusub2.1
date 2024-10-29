@@ -1,1 +1,4 @@
 DEMO bt tree implementation
+
+The AddTwoInts file is the example from the BT_CPP docs that implements a BT::Action using rclcpp::Client
+It is still a work in progress, and I still need to figure out the main function.

@@ -4,10 +4,15 @@
   <name>bt_trees</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="williamhardee6@gmail.com">williamhardee</maintainer>
+  <maintainer email="owenr@todo.todo">owenr</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>example_interfaces</depend>
+  <depend>behaviortree_cpp</depend>
+  <depend>behaviortree_ros2</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
