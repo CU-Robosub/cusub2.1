@@ -5,32 +5,32 @@ on:
     branches: [ "main", jTucker583-CIpipeline ]
   pull_request:
     branches: [ "main" ]
-
+    
 jobs:
   build-and-test:
-      runs-on: ubuntu-22.04
-      env:
-        ROS_DISTRO: humble
-      steps:
-        - name: Checkout source code
-          uses: actions/checkout@v3
-  
-        - name: Set up ROS2
-          uses: ros-tooling/setup-ros@v0.2
-          with:
-            distro: ${{ env.ROS_DISTRO }}
-  
-        - name: Install dependencies
-          run: |
-            sudo apt update && sudo apt install -y python3-colcon-common-extensions
-            rosdep update
-            rosdep install --from-paths src --ignore-src -r -y
-  
-        - name: Build the workspace
-          run: |
-            colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-  
-        - name: Run tests
-          run: |
-            colcon test
-            colcon test-result --all
+    runs-on: ubuntu-latest
+    container:
+      image: osrf/ros:humble-desktop  # ROS2 Humble in a Docker container
+    env:
+      ROS_DISTRO: humble
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies
+        run: |
+          apt update && apt install -y python3-colcon-common-extensions
+          rosdep update
+          rosdep install --from-paths src --ignore-src -r -y
+
+      - name: Build the workspace
+        run: |
+          source /opt/ros/${{ env.ROS_DISTRO }}/setup.sh
+          colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+      - name: Run tests
+        run: |
+          source /opt/ros/${{ env.ROS_DISTRO }}/setup.sh
+          colcon test
+          colcon test-result --all
