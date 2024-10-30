@@ -2,7 +2,7 @@ name: ROS2 CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", jTucker583-CIpipeline ]
   pull_request:
     branches: [ "main" ]
 
