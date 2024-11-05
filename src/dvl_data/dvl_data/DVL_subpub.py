@@ -29,49 +29,55 @@ class DVL(Node):
         #if (self.dvl.is_connected()):
         #    self.get_logger.info("Calibrating gyro...",str(self.dvl.calibrate_gyro()))
         #    self.get_logger.info("Resetting dead reckoning...",str(self.dvl.calibrate_gyro()))
-        self.posemsg = Pose()
+        self.latestPose = Pose()
         self.didinitialpose = False
 
         self.timer_ = self.create_timer(0.2, self.publish_data)  # Call data_callback every 0.2 seconds (dead reckoning report update cycle is 5hz)
     
+
     def publish_data(self):
         msgstr = String()
-        if (self.dvl.is_connected()):
-            msg = self.dvl.read_data("dead_reckoning")
-            if (msg is not None):
-                msgstr.data = str(msg)
-                self.posepub.publish(
-                    self.convert_to_pose(
-                        msg)
-                )
-                self.rawrecpub.publish(msgstr)
-                if (not self.didinitialpose):
-                    self.goalposepub.publish(
-                        self.convert_to_pose(
-                            msg)
-                    )
-                    self.didinitialpose = True
-            else:
-                self.get_logger().info("no data")
-                msgstr.data = "no data"
-                self.rawrecpub.publish(msgstr)
-        else:
-            self.get_logger().info("DVL not connected")
+
+        if (not self.dvl.is_connected()):
+            self.get_logger("Could not read data, DVL not connected")
+            return
+        
+        msg = self.dvl.read_data("dead_reckoning")
+
+        if (msg is None):
+            self.get_logger("DVL connected but provided no data")
+            msgstr.data = "no data"
+            self.rawrecpub.publish(msgstr)
+            return
+        
+        msgstr.data = str(msg)
+
+        #Convert raw data supplied from dvl into a pose message
+        pose = self.convert_to_pose(msg)
+
+        self.posepub.publish(pose)
+
+        #Publish raw dvl data for testing
+        self.rawrecpub.publish(msgstr)
+    
+            
 
 
     def convert_to_pose(self, data):
         if (data is None):
              return
+    
         parsed_data = json.loads(data)
-        self.posemsg.position.x = parsed_data['x']
-        self.posemsg.position.y = parsed_data['y']
-        self.posemsg.position.z = parsed_data['z']
+        posemsg = Pose()
+        posemsg.position.x = parsed_data['x']
+        posemsg.position.y = parsed_data['y']
+        posemsg.position.z = parsed_data['z']
         angdata = self.euler_to_quaternion(parsed_data['roll'],parsed_data['pitch'],parsed_data['yaw'])
-        self.posemsg.orientation.x = angdata[0]
-        self.posemsg.orientation.y = angdata[1]
-        self.posemsg.orientation.z = angdata[2]
-        self.posemsg.orientation.w = angdata[3]
-        return self.posemsg
+        posemsg.orientation.x = angdata[0]
+        posemsg.orientation.y = angdata[1]
+        posemsg.orientation.z = angdata[2]
+        posemsg.orientation.w = angdata[3]
+        return posemsg
 
 
     def euler_to_quaternion(self, roll, pitch, yaw):
