@@ -98,6 +98,23 @@ class datareader:
             self._format_timestamps(message_type, report, time_format)
         self.msg = (json.dumps(report)) # the key function to return all data
     
+    def _handle2(self, message_type, message, time_format):
+        """Handle a message from the DVL. Set self.message to the message."""
+        if not message:
+            return
+        
+        try:
+            report = json.loads(message)
+        except json.decoder.JSONDecodeError:
+            print("Could not parse to JSON: " + message)
+            return
+    
+        report["log_time"] = int(datetime.datetime.utcnow().timestamp() * 1e6)
+        if time_format:
+            self._format_timestamps(message_type, report, time_format)
+        self.msg = report 
+        return report
+
     def getMessage(self):
         return self.msg
     

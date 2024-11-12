@@ -10,7 +10,7 @@ import rclpy
 from rclpy.node import Node
 # from wldvl import WlDVL
 from std_msgs.msg import String
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Twist
 import serial
 import math
 from .dvl_tcp_parser import datareader
@@ -23,6 +23,7 @@ class DVL(Node):
         super().__init__('DVLPublisher')
         self.rawrecpub = self.create_publisher(String, 'dvl_raw_deadrec_data', 10)
         self.posepub = self.create_publisher(Pose, 'pose', 10)
+        self.velocity_publisher = self.create_publisher(Twist, 'velocity', 10)
         self.goalposepub = self.create_publisher(Pose, 'goal_pose', 10)
         self.dvl = datareader()
         self.dvl.connect_dvl()
@@ -59,7 +60,40 @@ class DVL(Node):
 
         #Publish raw dvl data for testing
         self.rawrecpub.publish(msgstr)
-    
+
+    def publish_data2(self):
+        msgstr = String()
+
+        if (not self.dvl.is_connected()):
+            self.get_logger("Could not read data, DVL not connected")
+            return
+        
+        msg = self.dvl.read_data("dead_reckoning")
+
+        if (msg is None):
+            self.get_logger("DVL connected but provided no data")
+            msgstr.data = "no data"
+            self.rawrecpub.publish(msgstr)
+            return
+        
+        if msg["type"] == "position_local":
+            pose = self.convert_to_pose(msg)
+            self.posepub.publish(pose)
+        elif msg["type"] == "velocity":
+            velocity = self.convert_to_twist(msg)
+            self.velocity_publisher.publish(velocity)
+        elif msg["type"] == "response":
+            self.get_logger(msg["response_to"] + ": " + "FAILED" if msg["success"] == False else "SUCCESS")
+        
+            
+        
+        
+        msgstr.data = str(msg)
+
+        #Convert raw data supplied from dvl into a pose message
+
+        #Publish raw dvl data for testing
+        self.rawrecpub.publish(msgstr)
             
 
 
@@ -78,6 +112,11 @@ class DVL(Node):
         posemsg.orientation.z = angdata[2]
         posemsg.orientation.w = angdata[3]
         return posemsg
+    
+    def convert_to_twist(self, data):
+        velocity_msg = Twist()
+        velocity_msg.linear([data["vx"], data["vy"], data["vz"]])
+        return velocity_msg
 
 
     def euler_to_quaternion(self, roll, pitch, yaw):
