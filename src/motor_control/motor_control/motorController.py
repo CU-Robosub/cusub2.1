@@ -9,6 +9,7 @@ import sys
 from .submodules.Maestro import maestro
 import yaml
 import logging
+from PID_controller import PID
 
 PWM_MULTIPLIER = 0
 NEUTRAL_PWM = 1490
@@ -31,13 +32,12 @@ class motorController:
             print("Error opening serial port {port}")
         
 
-    def run(self, channels, target=0, duration=-1, multiplier=PWM_MULTIPLIER, INVERT=False, raw_pwm=False):
+    def run(self, channels, target=0, multiplier=PWM_MULTIPLIER, INVERT=False, raw_pwm=False):
         """Sends a PWM command to a set of servos
 
         Args:
             channels (int[]): list of integer channels from the maestro
             target (int): target PWM value (can be cmd_vel value or raw PWM value)
-            duration (int, optional): duration of command. Defaults to -1 (runs once).
             multiplier (float, optional): multiplier for cmd_vel values. Defaults to PWM_MULTIPLIER.
             INVERT (bool, optional): inverts the target value. Defaults to False.
             raw_pwm (bool, optional): if True, target is raw PWM value. Defaults to False.
@@ -50,7 +50,6 @@ class motorController:
             targetPWM = round(4 * (NEUTRAL_PWM + INVERTER * (target * multiplier)))
         else:
             targetPWM = round(target * 4)
-        logging.info(f'PWM: {targetPWM / 4}')
         
         if (targetPWM > MAX_PWM * 4): targetPWM = MAX_PWM * 4
         elif (targetPWM < MIN_PWM * 4): targetPWM = MIN_PWM * 4
@@ -59,10 +58,26 @@ class motorController:
         for channel in channels: # loop through channels
             finalCommand = [0x84, channel] + targetBytes # Send 4 byte command to maestro
             if self.serial is not None: self.serial.write(bytearray(finalCommand))
-        # if duration != -1: # if duration parameter is passed
-        #     time.sleep(duration)
-        #     self.killAll(channels)
         return targetPWM
+    
+    def calculate_motor_PWM(self, velocity):
+        # todo: implement this function
+        return velocity
+    
+
+    def runDepthPID(self, channels, state, goal, pid):
+        """Runs a PID controller on a set of servos
+
+        Args:
+            channels (int[]): list of integer channels from the maestro
+            state (float): current depth of the system (meters)
+            goal (float): goal depth of the system (meters)
+            pid (PID): PID controller object
+            duration (int, optional): duration of command. Defaults to -1 (runs once).
+        """
+        target = pid.calculateOutput(state, goal)
+        target = self.calculate_motor_PWM(target)
+        return self.run(channels, target)
 
     def killAll(self, channels):
         """Send the neutral PWM command to the list of servos
@@ -75,15 +90,6 @@ class motorController:
         for channel in channels: # kill all channels
             finalCommand = [0x84, channel] + targetBytes
             if self.serial is not None: self.serial.write(bytearray(finalCommand))
-
-    def testFunc(val):
-        """Print recieved teleop value
-
-        Args:
-            val (float): got from joystick
-        """
-        finalVal = NEUTRAL_PWM + val*PWM_MULTIPLIER
-        print("received val: ", finalVal)
 
 
 
