@@ -1,0 +1,55 @@
+<sdf version='1.8'>
+  <model name='chimera_URDF_real'>
+    <link name='base_link'>
+      <inertial>
+        <pose>-1.56312874363132e-05 -1.76467617646643e-06 0.161160143310051 0 0 0</pose>
+        <mass>5.5616877304418999</mass>
+        <inertia>
+          <ixx>0.028285017942124499</ixx>
+          <ixy>-2.7176784497656601e-07</ixy>
+          <ixz>-8.8712051036606401e-13</ixz>
+          <iyy>0.0412594635209481</iyy>
+          <iyz>-3.0680745497198601e-06</iyz>
+          <izz>0.046315634142604097</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>./meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>./meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.622549 0.622549 0.622549 1</diffuse>
+          <ambient>0.622549 0.622549 0.622549 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <link name='thruster_front_left'>
+      <pose>0.225552 0.244729 0 0 0 0</pose>
+      <visual name="visual">
+        <geometry>
+          <ellipsoid>
+            <radii>0.2 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0 1</ambient>
+          <diffuse>1.0 0.0 0 1</diffuse>
+          <specular>1.0 0.0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
