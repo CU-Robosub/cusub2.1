@@ -20,4 +20,11 @@ depth_tolerance: 10
 
 kp: 0.5
 kd: 0.1
+
+# Holonomic Control
+
+
 # Path: src/cfg/depth_pid.yaml
+h_thruster_radius: 0.3328 # distance from thrusters to center of rotation in meters
+h_thruster_angle: 1.0472 # PI/3, angle between forward axis and thruster in rads
+h_thruster_torque_angle: 1.7856 # 102.3 deg, angle between radius vector and thrust vector in rads
