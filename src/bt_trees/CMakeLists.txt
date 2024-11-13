@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.8)
 project(bt_trees)
 
+# make sure to include behaviortree_ros2 library
+# this is a temporary fix where the library is installed using a bash script
+# eventually we will want to implement this directly in CMake with FetchContent
+execute_process(COMMAND ./include_behaviortrees_ros2.sh
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}) 
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -32,4 +38,3 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
-
