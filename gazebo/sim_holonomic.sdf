@@ -17,9 +17,9 @@
             filename="libignition-gazebo-scene-broadcaster-system.so"
             name="ignition::gazebo::systems::SceneBroadcaster">
         </plugin>
-        
+
         <plugin
-            filename="libignition-gazebo6-buoyancy-system.so"
+            filename="libignition-gazebo-buoyancy-system.so"
             name="ignition::gazebo::systems::Buoyancy">
             <uniform_fluid_density>1000</uniform_fluid_density>
         </plugin>
@@ -39,9 +39,56 @@
         </light>
 
         <model name="sub">
-            <include>
+            <include merge="true">
+                <pose degrees="true">0 0 0 180 0 0</pose>
                 <uri>chimera</uri>
-                <pose>0 0 0 0 0 0</pose>
+
+                <!-- Publish -->
+                <!-- ign topic -t /model/sub/joint/thruster_joint_BR/cmd_thrust -m ignition.msgs.Double -p "data: -1"-->
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_FL</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_FR</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_BL</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_BR</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
             </include>
         </model>
 
