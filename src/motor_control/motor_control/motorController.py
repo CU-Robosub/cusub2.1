@@ -6,7 +6,7 @@
 import serial
 import time
 import sys
-    # from .submodules.Maestro import maestro
+from .submodules.Maestro import maestro
 import yaml
 import logging
 from PID_controller import PID
