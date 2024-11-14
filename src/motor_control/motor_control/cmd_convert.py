@@ -7,6 +7,8 @@ from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
 from std_msgs.msg import String
 import numpy as np
+
+DEPTH_TOLERANCE = 0.1
 # import testMC # importing this clears the motors for use
 """
 AUTHOR: JAKE TUCKER
@@ -23,15 +25,33 @@ class cmd_convert(Node):
             self.experimental_callback,
             10)
         self.last_msg_time = self.get_clock().now()
+        self.pose_sub = self.create_subscription(
+            Pose,
+            'pose',
+            self.pose_callback,
+            10)
+        self.goal_pose_sub = self.create_subscription(
+            Pose,
+            'goal_pose',
+            self.goal_pose_callback,
+            10)
         self.mc = motorController()
+        self.current_pose = Pose()
+        self.goal_pose = Pose()
+
+    def goal_pose_callback(self, msg):
+        self.goal_pose = msg
+
+    def pose_callback(self, msg):
+        self.current_pose = msg
 
     def listener_callback(self, msg): # test fxn for joy_node
         if(msg.linear.x > 0): # only send a command when vel is not 0
             channels = [0,1,2,7] # dummy channel list
-            self.get_logger().info(f"Re: {self.mc.run(channels,msg.linear.x, INVERT=False, raw_pwm=False) / 4}")
+            self.mc.run(channels,msg.linear.x, INVERT=False, raw_pwm=False)
         elif(msg.linear.x < 0):
             channels = [0,1,2,7] # dummy channel list
-            self.get_logger().info(f"Re: {self.mc.run(channels,msg.linear.x, INVERT=False, raw_pwm=False) / 4}")
+            self.mc.run(channels,msg.linear.x, INVERT=False, raw_pwm=False)
         if(msg.linear.y > 0): # only send a command when vel is not 0
             forward_channels = [7,1] # dummy channel list
             backward_channels = [2,0] # dummy channel list
@@ -45,9 +65,9 @@ class cmd_convert(Node):
         if(msg.linear.x == 0 and msg.linear.y == 0 and msg.angular.z == 0):
             channels = [0,1,2,7]
             self.mc.killAll(channels)
-        if(msg.linear.z != 0): # only send a command when vel is not 0
-            channels = [3,4,5,6] # dummy channel list
-            self.mc.run(channels,msg.linear.z, INVERT=True)
+        if (self.current_pose.position.z > self.goal_pose.position.z + DEPTH_TOLERANCE or self.current_pose.position.z < self.goal_pose.position.z - DEPTH_TOLERANCE):
+            channels = [3,4,5,6]
+            self.mc.runDepthPID(self.current_pose.position.z, self.goal_pose.position.z, channels)
         else:
             channels = [3,4,5,6]
             self.mc.killAll(channels)
