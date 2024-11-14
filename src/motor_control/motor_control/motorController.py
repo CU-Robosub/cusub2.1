@@ -90,7 +90,3 @@ class motorController:
         for channel in channels: # kill all channels
             finalCommand = [0x84, channel] + targetBytes
             if self.serial is not None: self.serial.write(bytearray(finalCommand))
-
-
-
- 
