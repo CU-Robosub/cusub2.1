@@ -21,7 +21,7 @@ class PID():
         self.prev_time = 0
     def calculateOutput(self, state, goal):
         error = goal - state
-        integral = self.integral + error
+        integral = self.integral + (error * (time.time() - self.prev_time))
         derivative = (error - self.prev_error) / (time.time() - self.prev_time)
         self.prev_error = error
         self.integral = integral
