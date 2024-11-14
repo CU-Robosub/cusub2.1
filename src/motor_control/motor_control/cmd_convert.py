@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from .motorController import motorController # Class with motor control functions
+from .PID_controller import PID
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 from std_msgs.msg import Bool
@@ -36,6 +37,7 @@ class cmd_convert(Node):
             self.goal_pose_callback,
             10)
         self.mc = motorController()
+        self.pid = PID()
         self.current_pose = Pose()
         self.goal_pose = Pose()
 
@@ -67,7 +69,7 @@ class cmd_convert(Node):
             self.mc.killAll(channels)
         if (self.current_pose.position.z > self.goal_pose.position.z + DEPTH_TOLERANCE or self.current_pose.position.z < self.goal_pose.position.z - DEPTH_TOLERANCE):
             channels = [3,4,5,6]
-            self.mc.runDepthPID(self.current_pose.position.z, self.goal_pose.position.z, channels)
+            self.mc.runDepthPID(channels, self.current_pose.position.z, self.goal_pose.position.z, self.pid)
         else:
             channels = [3,4,5,6]
             self.mc.killAll(channels)
