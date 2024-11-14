@@ -27,7 +27,6 @@ setup(
     entry_points={
         'console_scripts': [
             'cmd_convert = motor_control.cmd_convert:main',
-            'pid_controller = motor_control.PID_controller:main',
             'joy_listener = motor_control.joyListener:main',
         ],
     },
