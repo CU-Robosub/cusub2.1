@@ -1,4 +1,5 @@
 <launch>
   <node pkg="motor_control" exec="cmd_convert" name="cmd_convert"/>
   <node pkg="motor_control" exec="pid_controller" name="pid_controller"/>
+  <node pkg="motor_control" exec="holonomic_control" name="holonomic_control"/>
 </launch>

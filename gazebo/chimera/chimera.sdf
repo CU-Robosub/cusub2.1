@@ -1,6 +1,10 @@
 <sdf version='1.8'>
   <model name='chimera_URDF_real'>
     <link name='base_link'>
+      <velocity_decay>
+        <linear>1000</linear>
+        <angular>1000</angular>
+      </velocity_decay>
       <pose degrees="true">0 0 0 180 0 0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
