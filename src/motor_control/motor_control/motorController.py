@@ -10,6 +10,8 @@ from .submodules.Maestro import maestro
 import yaml
 import logging
 from PID_controller import PID
+import numpy as np
+ 
 
 PWM_MULTIPLIER = 0
 NEUTRAL_PWM = 1490
@@ -60,9 +62,56 @@ class motorController:
             if self.serial is not None: self.serial.write(bytearray(finalCommand))
         return targetPWM
     
-    def calculate_motor_PWM(self, velocity):
-        # todo: implement this function
-        return velocity
+    def calculate_motor_PWM(self, force):
+        """
+        Takes force input (Newtons), outputs PWM value for motors
+
+        Does this using numpy polyval, which takes polynomial coefficients
+        output from MATLAB to approximate the appropriate PWM value based on 
+        motor torque curve given here under technical details
+
+        https://bluerobotics.com/store/thrusters/t100-t200-thrusters/t200-thruster-r2-rp/
+        
+        """
+        if force < 0.6 and force > -0.6:
+            # DONT TOUCH THESE -> from MATLAB polyfit
+            coefficients = [
+                357933.734034129,   
+                51267.3411185555,   
+                -262097.155303832,  
+                -25749.0835774908,  
+                69454.7836294624,   
+                4065.09857423062,   
+                -8128.74996899901,  
+                -237.488151712237,  
+                631.643782510791,   
+                1499.76032846881
+            ]
+        else:
+            # DONT TOUCH THESE -> from MATLAB polyfit
+            coefficients = [
+                0.0226802282868747,  # x^9
+                0.0212913733046859,  # x^8
+                -0.854526266622636,   # x^7
+                -0.323698787684428,   # x^6
+                10.5735153825628,    # x^5
+                1.92971764787633,    # x^4
+                -55.6668551735257,    # x^3
+                -8.33712299251340,    # x^2
+                241.446557413169,     # x^1
+                1495.40998415651      # x^0 (constant)
+            ]
+
+        # Compute the output using the polynomial
+        output = np.polyval(coefficients, force)
+
+        if output > 1900:
+            output = 1900
+        if output < 1100:
+            output = 1100
+
+
+        return output
     
 
     def runDepthPID(self, channels, state, goal, pid):
