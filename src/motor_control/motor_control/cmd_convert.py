@@ -7,6 +7,7 @@ from geometry_msgs.msg import Pose
 from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
 from std_msgs.msg import String
+from custom_interfaces.srv import SetPIDValues
 import numpy as np
 
 DEPTH_TOLERANCE = 0.1
@@ -36,6 +37,7 @@ class cmd_convert(Node):
             'goal_pose',
             self.goal_pose_callback,
             10)
+        self.change_pid_values = self.create_service(SetPIDValues, "change_pid_values", self.change_pid_values_callback)
         self.mc = motorController()
         self.pid = PID()
         self.current_pose = Pose()
@@ -46,6 +48,17 @@ class cmd_convert(Node):
 
     def pose_callback(self, msg):
         self.current_pose = msg
+    
+    def change_pid_values_callback(self, request, response):
+        if(request.kp != -1):
+            self.pid.setKP(request.kp)
+        if(request.kd != -1):
+            self.pid.setKD(request.kd)
+        if(request.ki != -1):
+            self.pid.setKI(request.ki)
+        
+        response.success = True
+        return response
 
     def listener_callback(self, msg): # test fxn for joy_node
         if(msg.linear.x > 0): # only send a command when vel is not 0

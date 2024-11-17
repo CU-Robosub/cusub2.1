@@ -27,3 +27,13 @@ class PID():
         self.integral = integral
         self.prev_time = time.time()
         return self.KP * error + self.KD * derivative + self.KI * integral
+
+    def setKP(self, p):
+        self.KP = p   
+
+    def setKD(self, d):
+        self.KD = d
+    
+    def setKI(self, i):
+        self.KI = i
+
