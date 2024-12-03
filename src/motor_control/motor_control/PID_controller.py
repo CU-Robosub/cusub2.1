@@ -4,11 +4,14 @@ gKP = 0
 gKD = 0
 gKI = 0
 
-with open('src/cfg/sub_properties.yaml') as f:
-    file = yaml.safe_load(f)
-    gKP = file['kp']
-    gKD = file['kd']
-    gKI = file['ki']
+try:
+    with open('src/cfg/sub_properties.yaml') as f:
+        file = yaml.safe_load(f)
+        gKP = file['kp']
+        gKD = file['kd']
+        gKI = file['ki']
+except FileNotFoundError:
+    print("Config file not found, using default values for PID controller")
 
 class PID():
     # init with default values in YAML if values are not passed

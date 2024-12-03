@@ -2,9 +2,13 @@
     AUTHOR: JAKE TUCKER
     CONTACT: jatu9146@colorado.edu
     PURPOSE: Send neutral PWM to all motors
+
+    usage: python3 -m directory.to.module.emergencyMotorKill.py
 """
-from motorController import motorController
-from submodules.Maestro import maestro
+#from motorController import motorController
+#from submodules.Maestro import maestro
+from .motorController import motorController
+from . import maestro
 import time
 
 # All of this servo code is needed to clear maestro errors
@@ -19,7 +23,7 @@ servo.close()
 
 
 # Code for controlling motors
-channels = {1,2,3,4,5,6,7} # Channels to command
+channels = {0,1,2,3,4,5,6,7} # Channels to command
 mc = motorController()
 mc.run(channels,1490, raw_pwm=True) # run motors at set speed for set time (seconds)
 
