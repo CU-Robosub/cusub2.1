@@ -9,19 +9,27 @@ import sys
 from .submodules.Maestro import maestro
 import yaml
 import logging
-from PID_controller import PID
+from .PID_controller import PID
 import numpy as np
  
 
 PWM_MULTIPLIER = 0
 NEUTRAL_PWM = 1490
-with open('src/cfg/sub_properties.yaml') as f:
-    file = yaml.safe_load(f)
-    PWM_MULTIPLIER = file['PWM_multiplier']
-    NEUTRAL_PWM = file['neutral_PWM']
-    MAX_PWM = file['max_PWM']
-    MIN_PWM = file['min_PWM']
-    PORT = file['maestro_port']
+try:
+    with open('src/cfg/sub_properties.yaml') as f:
+        file = yaml.safe_load(f)
+        PWM_MULTIPLIER = file['PWM_multiplier']
+        NEUTRAL_PWM = file['neutral_PWM']
+        MAX_PWM = file['max_PWM']
+        MIN_PWM = file['min_PWM']
+        PORT = file['maestro_port']
+except FileNotFoundError:
+    print("Config file not found, using default values for PID controller")
+    PWM_MULTIPLIER = 0.5
+    NEUTRAL_PWM = 1490
+    MAX_PWM = 1900
+    MIN_PWM = 1100
+    PORT = '/dev/ttyACM0'
 
 class motorController:
     
