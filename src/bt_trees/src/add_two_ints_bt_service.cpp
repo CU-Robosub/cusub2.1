@@ -6,14 +6,11 @@
 using AddTwoInts = example_interfaces::srv::AddTwoInts;
 using namespace BT;
 
-
 class AddTwoIntsNode: public RosServiceNode<AddTwoInts>
 {
   public:
 
-  AddTwoIntsNode(const std::string& name,
-                  const NodeConfig& conf,
-                  const RosNodeParams& params)
+  AddTwoIntsNode(const std::string& name, const NodeConfig& conf, const RosNodeParams& params)
     : RosServiceNode<AddTwoInts>(name, conf, params)
   {}
 
@@ -62,16 +59,23 @@ int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
     BT::BehaviorTreeFactory factory;
+	
+	auto node = std::make_shared<rclcpp::Node>("add_two_ints_client");
+	
+	// provide the ROS node and the name of the action service
+	RosNodeParams params;
+	params.nh = node;
+	params.default_port_value = "add_two_ints";
 
-    //auto node = std::make_shared<rclcpp::Node>("add_two_ints");
+	// register the add two ints node
+	factory.registerNodeType<AddTwoIntsNode>("AddTwoInts", params);
 
-    //RosNodeParams params; 
-    //params.default_port_value = "ints";
-    //factory.registerNodeType<AddTwoIntsNode>("AddTwoIntsNode", params);
+	std::cout << "about to create tree..." << std::endl;
 
-    //auto tree = factory.createTreeFromFile("./src/cpp_srvcli/src/treeLayout.xml"); // Update with your tree file path
+    auto tree = factory.createTreeFromFile("./src/bt_trees/src/treeLayout.xml"); // Update with your tree file path
 
-    //rclcpp::spin(tree);
-    //rclcpp::shutdown();
+	std::cout << "done" << std::endl;
+    tree.tickWhileRunning();
+
     return 0;
 }

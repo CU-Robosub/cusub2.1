@@ -31,10 +31,13 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(bt_client src/add_two_ints_bt_service.cpp)
+add_executable(bt_server src/add_two_ints_server.cpp)
 ament_target_dependencies(bt_client rclcpp behaviortree_cpp behaviortree_ros2 example_interfaces)
+ament_target_dependencies(bt_server rclcpp example_interfaces)
 
 install(TARGETS
      bt_client
+	 bt_server
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
