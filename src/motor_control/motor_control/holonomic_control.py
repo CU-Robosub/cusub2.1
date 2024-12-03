@@ -61,16 +61,18 @@ class HolonomicControl(Node):
         else:
 
             r = y / x # simply the tan of the force vector's angle
-
-            if r < 0: # Force vector in 2nd or 4th quadrants
-                force_2_3 = 1 if x else -1 # constrain 2 & 3 to +-1
+            if r == 0: # Only x movement
+                force_1_4 = 1 if x > 0 else -1
+                force_2_3 = 1 if x > 0 else -1
+            elif r < 0: # Force vector in 2nd or 4th quadrants
+                force_2_3 = 1 if x > 0 else -1 # constrain 2 & 3 to +-1
                 force_1_4 = ( (-force_2_3 * math.tan(H_THRUSTER_A) - force_2_3 * r) / (r - math.tan(H_THRUSTER_A)) )
             else: # Force vector in 1st or 3rd quadrants
                 force_1_4 = 1 if y > 0 else -1 # constrain 1 & 4 to +- 1
                 force_2_3 = ( (force_1_4 * math.tan(H_THRUSTER_A) - force_1_4 * r) / (r + math.tan(H_THRUSTER_A)) )
 
         # Determine magnitude of calculated force, and scale to match the desired force magnitude
-        result_mag = math.sqrt((math.cos(H_THRUSTER_A * (force_1_4 + force_2_3))) ** 2 + (math.sin(H_THRUSTER_A * (force_1_4 - force_2_3))) ** 2)
+        result_mag = math.sqrt((math.cos(H_THRUSTER_A) * (force_1_4 + force_2_3)) ** 2 + (math.sin(H_THRUSTER_A) * (force_1_4 - force_2_3)) ** 2)
         scale = math.sqrt(x**2 + y**2) / result_mag
 
         force_1_4 *= scale
@@ -79,10 +81,10 @@ class HolonomicControl(Node):
         # Calculate forces of each pair to produce half the desired torque each
         az = cmd_force.angular.z
         
-        force_1 = (force_1_4 + ((az / 2) / math.sin(H_THRUSTER_TA))) / 2
+        force_1 = (force_1_4 + ((az / (2 * H_THRUSTER_R)) / math.sin(H_THRUSTER_TA))) / 2
         force_4 = force_1_4 - force_1
 
-        force_2 = (force_2_3 + ((az / 2) / math.sin(-H_THRUSTER_TA))) / 2
+        force_2 = (force_2_3 + ((az / (2 * H_THRUSTER_R)) / math.sin(-H_THRUSTER_TA))) / 2
         force_3 = force_2_3 - force_2
 
         return (force_1, force_2, force_3, force_4)
