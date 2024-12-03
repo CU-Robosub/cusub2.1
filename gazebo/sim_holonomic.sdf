@@ -54,19 +54,6 @@
                         <ambient>0.3 0.3 0.3 1</ambient>
                       </material>
                 </visual>
-                <visual name="water">
-                    <pose>0 0 5 0 0 0</pose>
-                    <geometry>
-                        <plane>
-                            <size>10 10</size>
-                        </plane>
-                    </geometry>
-                    <material>
-                        <diffuse>0 0.7 0.9 0.5</diffuse>
-                        <ambient>0 0.7 0.9 0.5</ambient>
-                        <double_sided>true</double_sided>
-                    </material>
-                </visual>
                 <collision name="collision">
                     <geometry>
                         <plane>
@@ -79,7 +66,7 @@
 
         <model name="sub">
             <include merge="true">
-                <pose degrees="true">0 0 0 180 0 0</pose>
+                <pose degrees="true">0 0 1 180 0 0</pose>
                 <uri>chimera</uri>
 
                 <!-- Publish -->
@@ -126,6 +113,36 @@
                     <thrust_coefficient>0.0011</thrust_coefficient>
                     <fluid_density>1000</fluid_density>
                     <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+                <!-- https://gazebosim.org/api/gazebo/6/classignition_1_1gazebo_1_1systems_1_1Hydrodynamics.html -->
+                <plugin
+                    filename="libignition-gazebo-hydrodynamics-system"
+                    name="ignition::gazebo::systems::Hydrodynamics">
+                    <link_name>base_link</link_name>
+                    <!-- <xDotU>-4.876161</xDotU>
+                    <yDotV>-126.324739</yDotV>
+                    <zDotW>-126.324739</zDotW>
+                    <kDotP>0</kDotP>
+                    <mDotQ>-33.46</mDotQ>
+                    <nDotR>-33.46</nDotR> -->
+                    <xUabsU>-50</xUabsU>
+                    <xU>-11</xU>
+                    <yVabsV>-50</yVabsV>
+                    <yV>-1</yV>
+                    <zWabsW>-50</zWabsW>
+                    <zW>-1</zW>
+                    <kPabsP>-60</kPabsP>
+                    <kP>-1</kP>
+                    <mQabsQ>-60</mQabsQ>
+                    <mQ>-1</mQ>
+                    <nRabsR>-60</nRabsR>
+                    <nR>-1</nR>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-odometry-publisher-system"
+                    name="ignition::gazebo::systems::OdometryPublisher">
+                    <dimensions>3</dimensions>
                 </plugin>
 
             </include>

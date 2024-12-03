@@ -7,7 +7,7 @@
       </velocity_decay>
       <pose degrees="true">0 0 0 180 0 0</pose>
       <inertial>
-        <pose>0 0 0 0 0 0</pose>
+        <pose>0 0 0.1395 0 0 0</pose>
         <mass>5.16</mass> <!-- 5.56 - 4x0.1 from thruster links-->
         <inertia>
           <ixx>0.03</ixx>
@@ -28,11 +28,19 @@
         </geometry>
       </collision> -->
       <collision name="main_body_buoyancy">
-        <pose>-1.56312874363132e-05 -1.76467617646643e-06 0.161160143310051 0 0 0</pose>
+        <pose>0 0 0.1395 0 0 0</pose>
         <geometry>
           <sphere>
             <radius>0.1098994184</radius>
           </sphere>
+        </geometry>
+      </collision>
+      <collision name="bottom">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <plane>
+            <size>0.4572 0.3302</size>
+          </plane>
         </geometry>
       </collision>
       <visual name='base_link_visual'>
