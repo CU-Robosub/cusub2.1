@@ -127,7 +127,23 @@ class motorController:
         target = pid.calculateOutput(state, goal)
         target = self.calculate_motor_PWM(target)
         return self.run(channels, target)
-
+    
+    def clearMotors(self):
+        """Clear the error upon maestro startup
+        """
+        servo = self.maestro.Controller()
+        servo.setSpeed(0,1900)     #set speed of servo 1
+        x = servo.getPosition(1) #get the current position of servo 1
+        servo.sendCmd(chr(0x21))
+        time.sleep(1)
+        x = servo.usb.read()
+        if (x.hex() != "00"):
+            print("Error clearing Maestro")
+            servo.close()
+            return False
+        servo.close()
+        return True
+    
     def killAll(self, channels):
         """Send the neutral PWM command to the list of servos
 

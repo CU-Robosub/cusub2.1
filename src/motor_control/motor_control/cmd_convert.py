@@ -42,6 +42,10 @@ class cmd_convert(Node):
         self.pid = PID()
         self.current_pose = Pose()
         self.goal_pose = Pose()
+        
+        # clear motors
+        self.mc.clearMotors()
+        
 
     def goal_pose_callback(self, msg):
         self.goal_pose = msg
