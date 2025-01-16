@@ -10,7 +10,7 @@ with open('src/cfg/sub_properties.yaml') as f:
     gKD = file['kd']
     gKI = file['ki']
 
-class PID():
+class PID:
     # init with default values in YAML if values are not passed
     def __init__(self, KP = gKP, KD = gKP, KI = gKI):
         self.KP = KP
