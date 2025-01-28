@@ -28,3 +28,13 @@ kd: 0.1
 h_thruster_radius: 0.3328 # distance from thrusters to center of rotation in meters
 h_thruster_angle: 0.523599 # PI/6, angle between forward axis and thruster in rads
 h_thruster_torque_angle: 1.7856 # 102.3 deg, angle between radius vector and thrust vector in rads
+
+# Maestro channels gripper is on front
+front_left_id: 2
+front_right_id: 1
+back_left_id: 7
+back_right_id: 0
+vertical_front_left_id: 4
+vertical_front_right_id: 5
+vertical_back_left_id: 6
+vertical_back_right_id: 3

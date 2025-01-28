@@ -1,0 +1,7 @@
+# SetPIDValues.srv
+
+int8 kp
+int8 kd
+int8 ki
+---
+bool success

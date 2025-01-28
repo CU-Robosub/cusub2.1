@@ -3,7 +3,7 @@
     CONTACT: xaok7569@colorado.edu
     PURPOSE: Test code to test motor controller
 """
-from submodules.motorController import motorController
+from motorController import motorController
 from submodules.Maestro import maestro
 import time
 

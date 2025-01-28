@@ -3,7 +3,7 @@
     CONTACT: jatu9146@colorado.edu
     PURPOSE: Send neutral PWM to all motors
 """
-from submodules.motorController import motorController
+from motorController import motorController
 from submodules.Maestro import maestro
 import time
 

@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="teleoperation" exec="cmd_map" name="cmd_map"/>
-</launch>
