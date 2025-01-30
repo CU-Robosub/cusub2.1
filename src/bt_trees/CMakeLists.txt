@@ -14,9 +14,16 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(example_interfaces REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(behaviortree_ros2 REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/Rotation.srv"
+)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
+ament_export_dependencies(rosidl_default_runtime)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -30,14 +37,11 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(bt_client src/add_two_ints_bt_service.cpp)
-add_executable(bt_server src/add_two_ints_server.cpp)
-ament_target_dependencies(bt_client rclcpp behaviortree_cpp behaviortree_ros2 example_interfaces)
-ament_target_dependencies(bt_server rclcpp example_interfaces)
+add_executable(navigateGate src/navigateGate.cpp)
+ament_target_dependencies(navigateGate rclcpp behaviortree_cpp behaviortree_ros2)
 
 install(TARGETS
-     bt_client
-	 bt_server
+  navigateGate
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

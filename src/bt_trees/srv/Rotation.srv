@@ -1,0 +1,8 @@
+# Rotation.srv
+
+# Request: The desired angle to rotate the sub
+float32 angle
+---
+# Response: The pixel position of the target after it moves in the camera view (x and y)
+float32 fin_orientation_x
+float32 fin_orientation_y

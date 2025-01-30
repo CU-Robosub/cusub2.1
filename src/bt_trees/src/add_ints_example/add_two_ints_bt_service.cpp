@@ -57,8 +57,8 @@ class AddTwoIntsNode: public RosServiceNode<AddTwoInts>
 
 int main(int argc, char** argv)
 {
-    rclcpp::init(argc, argv);
-    BT::BehaviorTreeFactory factory;
+  rclcpp::init(argc, argv);
+  BT::BehaviorTreeFactory factory;
 	
 	auto node = std::make_shared<rclcpp::Node>("add_two_ints_client");
 	
