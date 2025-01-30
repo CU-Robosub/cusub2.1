@@ -40,8 +40,12 @@ endif()
 add_executable(navigateGate src/navigateGate.cpp)
 ament_target_dependencies(navigateGate rclcpp behaviortree_cpp behaviortree_ros2)
 
+add_executable(centerTarget src/centerTarget.cpp)
+ament_target_dependencies(centerTarget rclcpp)
+
 install(TARGETS
   navigateGate
+  centerTarget
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

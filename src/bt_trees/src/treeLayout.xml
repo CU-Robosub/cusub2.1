@@ -1,0 +1,8 @@
+ <root BTCPP_format="4" >
+	<BehaviorTree ID="MainTree">
+		<!-- sequence iterates through each node in order, failing if any of the children fail -->
+		<Sequence name="root_sequence">
+			<CenterTarget/>
+		</Sequence>
+	</BehaviorTree>
+</root>
