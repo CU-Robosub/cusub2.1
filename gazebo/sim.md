@@ -1,9 +1,9 @@
 # Gazebo Sim #
 
-Launch Gazebo
+Launch Gazebo (in gazebo dir)
 
 ``` bash
-ign gazebo gazebo/sim_test_world.sdf
+ign gazebo sim_test_world.sdf
 ```
 
 Ros GZ Bridge (source ROS)

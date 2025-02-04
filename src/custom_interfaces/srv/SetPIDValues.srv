@@ -1,7 +1,7 @@
 # SetPIDValues.srv
 
-int8 kp
-int8 kd
-int8 ki
+float32 kp
+float32 kd
+float32 ki
 ---
 bool success

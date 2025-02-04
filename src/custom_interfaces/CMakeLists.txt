@@ -10,9 +10,13 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
+# list custom interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DetectObjects.srv"
+  "srv/SetPIDValues.srv"
+  "msg/ThrusterValues.msg"
 )
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)

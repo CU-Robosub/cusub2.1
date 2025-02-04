@@ -20,6 +20,7 @@ depth_tolerance: 10
 
 kp: 0.5
 kd: 0.1
+ki: 0.0
 
 # Holonomic Control
 
