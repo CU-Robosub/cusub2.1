@@ -1,21 +1,53 @@
 # Gazebo Sim #
 
-Launch Gazebo (in gazebo dir)
+We use Gazebo Fortress.
+
+**Note:** after this version of Gazebo, there was a name change in lots of the commands. For our version, most of the packages/commands are prefaced `ignition` or `ign`. All modern packages/commands (and corresponding documentation) uses `gazebo` or `gz`. Make sure to look at documentation for Fortress only.
+
+## Install ##
+
+[Installation instructions](https://gazebosim.org/docs/fortress/ros_installation/)
+
+For a normal install, you just need run this command:
 
 ``` bash
-ign gazebo sim_test_world.sdf
+sudo apt-get install ros-humble-ros-gz
 ```
 
-Ros GZ Bridge (source ROS)
+## Launch Thruster Sim ##
+
+Launch Gazebo (must be in /gazebo dir!)
 
 ``` bash
-ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=./gazebo/bridge_config.yaml
+cd gazebo
+ign gazebo sim_thruster.sdf
 ```
 
-Publish to ROS (source ROS)
+Launch ROS-Gazebo Bridge (source local ROS). The bridge connects ROS topics to Gazebo topics. These connections are defined in `bridge_thruster.yaml`.
 
 ``` bash
+source install/setup.sh
+ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=./gazebo/bridge_thruster.yaml
+```
+
+Launch ROS (source local ROS)
+
+``` bash
+source install/setup.sh
+ros2 launch motor_control motor_control_launch.xml
+```
+
+## Publishing to ROS (source local ROS) ##
+
+``` bash
+ros2 source install/setup.sh
 ros2 topic pub cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0, y: 0, z: 0}, angular: {x: 0, y: 0, z: 0.5}}"
+```
+
+## Publishing to Gazebo ##
+
+``` bash
+ign topic -t /doubleTopic -m ignition.msg.Double -p "data: 1.0"
 ```
 
 ## Useful Links ##
@@ -25,25 +57,3 @@ ros2 topic pub cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0, y: 0, z: 0}, ang
 [ROS <-> Gazebo Topic Conversion](https://github.com/gazebosim/ros_gz/blob/ros2/ros_gz_bridge/README.md#example-1a-gazebo-transport-talker-and-ros-2-listener)
 
 [SDF Spec](http://sdformat.org/spec)
-
-## Holonomic Control Sim ##
-
-```bash
-# ros sourced - build
-colcon build
-
-# overlay sourced - launch
-ros2 launch motor_control motor_control_launch.xml
-
-# nothing sourced - run gazebo
-ign gazebo sim_holonomic.sdf
-
-# ros sourced - run ros_gz bridge
-ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=./gazebo/sim_holonomic_bridge.yaml
-
-# ros sourced - publish cmd_force
-ros2 topic pub cmd_force geometry_msgs/msg/Twist "{linear: {x: 1, y: 0, z: 0}, angular: {x: 0, y: 0, z: 0}}"
-
-# ros sourced - echo the output
-ros2 topic echo thrusters/force_FL
-```
