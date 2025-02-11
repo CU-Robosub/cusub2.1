@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 import random
 
 # for tree visualization
-import networkx as nx
-import matplotlib.pyplot as plt
+import graphviz
 
 
 class Node(ABC):
@@ -11,18 +10,53 @@ class Node(ABC):
         self.name = name
         self.parent = None 
         self.child = None 
+        self.node_color = 'grey'
 
-    def display(self, save_path=''):
-        # display function shows tree as a directed graph (pass root node)
+    def display(self, save_name='tree'):
+        # display function shows tree as a directed graph
+
+        # graph stores the tree structure
+        G = graphviz.Digraph()
+        G.node(self.name, style='filled,rounded', fillcolor=self.node_color, color ='black', shape ='box')
+
+        # helper function used to collect all of the edge connections when traversing the tree
+        def graphEdges(node, graph): # edges is a list of edges
+            if node.parent:
+                print(f'[{node.parent.name} -> {node.name}]')
+                graph.node(node.name, style='filled,rounded', fillcolor=node.node_color, color ='black', shape ='box')
+                graph.edge(node.parent.name, node.name)
+
+        # get all edges by traversing the tree and use them to create a directed graph
+        self.traverse(lambda node : graphEdges(node, G))
+
+        # Create legend as a subgraph
+        with G.subgraph(name="cluster_legend") as legend:
+            legend.attr(label="Legend", fontsize="16", style="filled", color="lightgrey")
+            
+            # Define legend items
+            legend.node("Composite", label="Composite Node", style="filled,rounded", fillcolor="bisque4", shape="box")
+            legend.node("Sequence", label="Sequence Node", style="filled,rounded", fillcolor="firebrick", shape="box")
+            legend.node("Selector", label="Selector Node", style="filled,rounded", fillcolor="darkorange", shape="box")
+            legend.node("Decorator", label="Inverter Node", style="filled,rounded", fillcolor="crimson", shape="box")
+            legend.node("Condition", label="Condition Node", style="filled,rounded", fillcolor="midnightblue", shape="box")
+            legend.node("Action", label="Action Node", style="filled,rounded", fillcolor="darkolivegreen", shape="box")
+            
+            # Arrange legend items using invisible edges
+            legend.edge("Composite", "Sequence", style="invis")
+            legend.edge("Sequence", "Selector", style="invis")
+            legend.edge("Selector", "Decorator", style="invis")
+            legend.edge("Decorator", "Condition", style="invis")
+            legend.edge("Condition", "Action", style="invis")
         
-        pass
+        # draw the graph with a tree layout
+        G.render(save_name, format="png")
 
-    def traverse(self):
-        # traverse the tree depth-first
-        print(self.name)
+    def traverse(self, function):
+        # traverse the tree depth-first, executing function at each step
+        function(self)
 
         if self.child:
-            self.child.traverse()
+            self.child.traverse(function)
 
     @abstractmethod
     def evaluate(self): # all children are required to implement this function
@@ -32,20 +66,25 @@ class Node(ABC):
 class Composite(Node):
     def __init__(self, name):
         super().__init__(name)
-        self.children = []    
+        self.children = []   
+        self.node_color = 'bisque4' 
 
     def add_child(self, child):
         self.children.append(child)
         child.parent = self
 
-    def traverse(self):
+    def traverse(self, function):
         # traverse the tree depth-first
-        print(self.name)
+        function(self)
 
         for child in self.children:
-            child.traverse()
+            child.traverse(function)
         
 class Sequence(Composite):
+    def __init__(self, name):
+        super().__init__(name)
+        self.node_color = 'firebrick'
+
     def evaluate(self):
         # runs all children until one returns false
         print(f"Executing Sequence: {self.name}")
@@ -55,6 +94,10 @@ class Sequence(Composite):
         return True
 
 class Selector(Composite):
+    def __init__(self, name):
+        super().__init__(name)
+        self.node_color = 'darkorange'
+
     def evaluate(self):
         # runs all children until one returns true
         print(f"Executing Selector: {self.name}")
@@ -63,11 +106,12 @@ class Selector(Composite):
                 return True
         return False
     
-# Decorator Nodes (Modify child behavior)    
+# Inverter Nodes (Modify child behavior)    
 class Inverter(Node):
     def __init__(self, name, child):
         super().__init__(name)
         self.child = child    
+        self.node_color = 'crimson'
         
     def evaluate(self):
         print(f"Inverting result of: {self.child.name}")
@@ -77,7 +121,8 @@ class Inverter(Node):
 class Condition(Node):
     def __init__(self, name, condition):
         super().__init__(name)
-        self.condition = condition    
+        self.condition = condition   
+        self.node_color = 'midnightblue' 
         
     def evaluate(self):
         result = self.condition()
@@ -89,6 +134,8 @@ class Action(Node):
     def __init__(self, name, action):
         super().__init__(name)
         self.action = action    
+        self.node_color = 'darkolivegreen'
+
     def evaluate(self):
         print(f"Executing Action: {self.name}")
         return self.action()# Example Conditions
@@ -128,4 +175,4 @@ root.add_child(combat_sequence)  # Tries combat first
 root.add_child(defensive_selector)  # Falls back to defensive actions
 root.add_child(patrol_action)  # If nothing else, patrol# Running the behavior tree
 root.evaluate()
-root.traverse()
+root.display(save_name='my_Tree')
