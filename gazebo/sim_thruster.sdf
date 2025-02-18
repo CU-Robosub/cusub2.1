@@ -65,8 +65,9 @@
         </model>
 
         <model name="sub">
+            <pose>0 0 1 0 0 0</pose>
             <include merge="true">
-                <pose degrees="true">0 0 1 180 0 0</pose>
+                <pose degrees="true">0 0 0 180 0 0</pose>
                 <uri>chimera</uri>
 
                 <!-- Publish -->

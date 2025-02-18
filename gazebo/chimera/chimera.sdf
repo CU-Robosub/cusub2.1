@@ -4,7 +4,7 @@
       <pose degrees="true">0 0 0 180 0 0</pose>
       <inertial>
         <pose>0 0 0.1395 0 0 0</pose>
-        <mass>7.1</mass> <!-- 7.85 (displacement of colliders) - 8*0.1 from thruster links-->
+        <mass>7.055</mass> <!-- 7.85 (displacement of colliders) - 8*0.1 from thruster links-->
         <inertia>
           <ixx>0.03</ixx>
           <ixy>0</ixy>
@@ -42,9 +42,11 @@
           </mesh>
         </geometry>
         <material>
-          <diffuse>0.622549 0.622549 0.622549 1</diffuse>
-          <ambient>0.622549 0.622549 0.622549 1</ambient>
-        </material>
+          <ambient>0.1 0.1 0.8 1</ambient>
+          <diffuse>0.2 0.2 0.9 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>  
+          <shininess>5</shininess>  
+      </material>
       </visual>
     </link>
 

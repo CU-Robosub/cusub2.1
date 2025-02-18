@@ -40,7 +40,10 @@ PURPOSE: Subscribe to cmd_vel, publish value to motorController to send to servo
 
 def quaternion_to_euler(quat: Quaternion) -> tuple[float, float, float]:
     # Convert quaternion to Euler angles
-    x, y, z, w = quat
+    x = quat.x
+    y = quat.y
+    z = quat.z
+    w = quat.w
     t0 = +2.0 * (w * x + y * z)
     t1 = +1.0 - 2.0 * (x * x + y * y)
     roll = math.atan2(t0, t1)
@@ -195,8 +198,8 @@ class cmd_convert(Node):
         euler = quaternion_to_euler(self.current_pose.orientation)
         
         # calculate outputs
-        roll_output = self.pid_roll.calculateOutput(euler[0], 1)
-        pitch_output = self.pid_pitch.calculateOutput(euler[1], 1)
+        roll_output = self.pid_roll.calculateOutput(euler[0], 0)
+        pitch_output = self.pid_pitch.calculateOutput(euler[1], 0)
 
         # +roll_output  -> +left motors  -right motors -> increased roll
         # +pitch_output -> +front motors -back motors  -> increased pitch
@@ -205,13 +208,13 @@ class cmd_convert(Node):
         bl_output = roll_output - pitch_output
         br_output = -roll_output - pitch_output
 
-        [fl_output, fr_output, bl_output, br_output] = normalize_motor_outputs([fl_output, fr_output, bl_output, br_output])
+        [fl_output, fr_output, bl_output, br_output] = normalize_motor_outputs([fl_output, fr_output, bl_output, br_output], 1)
 
         # apply outputs
-        self.run_motor([CHANNEL_V_FL], fl_output)
-        self.run_motor([CHANNEL_V_FR], fr_output)
-        self.run_motor([CHANNEL_V_BL], bl_output)
-        self.run_motor([CHANNEL_V_BR], br_output)
+        self.run_motor(CHANNEL_V_FL, fl_output)
+        self.run_motor(CHANNEL_V_FR, fr_output)
+        self.run_motor(CHANNEL_V_BL, bl_output)
+        self.run_motor(CHANNEL_V_BR, br_output)
 
 
     def run_motor(self, motor_channel: int, value: float):
@@ -245,6 +248,14 @@ class cmd_convert(Node):
     def sim_pose_callback(self, msg: PoseArray):
         if(msg.poses):
             pose = msg.poses[0]
+
+            # Transform from ENU to NED coordinate systems
+            pose.orientation.y = -pose.orientation.y
+            pose.orientation.z = -pose.orientation.z
+
+            pose.position.y = -pose.position.y
+            pose.position.z = -pose.position.z
+
             self.pose_callback(pose)
         else:
             self.get_logger().warning("received an empty pose array from the simulation")

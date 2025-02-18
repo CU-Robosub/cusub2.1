@@ -1,18 +1,9 @@
 import yaml
 import time
-gKP = 0
-gKD = 0
-gKI = 0
-
-with open('src/cfg/sub_properties.yaml') as f:
-    file = yaml.safe_load(f)
-    gKP = file['kp']
-    gKD = file['kd']
-    gKI = file['ki']
 
 class PID:
     # init with default values in YAML if values are not passed
-    def __init__(self, KP = gKP, KD = gKP, KI = gKI):
+    def __init__(self, KP = 0, KD = 0, KI = 0):
         self.KP = KP
         self.KD = KD
         self.KI = KI
