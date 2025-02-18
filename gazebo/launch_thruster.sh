@@ -17,9 +17,11 @@ else
     tmux send-keys -t thruster_sim:1 'source /opt/ros/humble/setup.sh' C-m
     tmux send-keys -t thruster_sim:1 'colcon build' C-m
     tmux send-keys -t thruster_sim:1 'source install/setup.sh' C-m
-    tmux send-keys -t thruster_sim:1 'ros2 launch motor_control motor_control_launch.xml' C-m
+    tmux send-keys -t thruster_sim:1 'ros2 launch simulation thruster_sim_launch.xml' C-m
 
     tmux new-window -t thruster_sim -n 'Gazebo'
     tmux send-keys -t thruster_sim:2 'cd gazebo' C-m
     tmux send-keys -t thruster_sim:2 'ign gazebo sim_thruster.sdf' C-m
+
+    tmux attach -t thruster_sim
 fi

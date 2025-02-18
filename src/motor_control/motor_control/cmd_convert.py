@@ -7,18 +7,14 @@ from rclpy.publisher import Publisher
 from .motorController import motorController # Class with motor control functions
 from .PID_controller import PID
 from geometry_msgs.msg import Twist
-from geometry_msgs.msg import Pose, PoseArray
+from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
-from std_msgs.msg import Bool, Float64
 from sensor_msgs.msg import Joy
-from std_msgs.msg import String
 from custom_interfaces.srv import SetPIDValues
 from custom_interfaces.msg import ThrusterValues
 import numpy as np
 
 DEPTH_TOLERANCE = 0.1
-
-SIM = True
 
 with open('src/cfg/sub_properties.yaml') as f:
     file = yaml.safe_load(f)
@@ -115,30 +111,6 @@ class cmd_convert(Node):
         # initialize motor_values
         self.motor_values = [0.0 for _ in range(8)]
 
-        # init sim
-        if SIM:
-            self.init_sim()
-
-    def init_sim(self):
-        # subscribers for simulation
-        self.sim_pose_sub = self.create_subscription(
-                PoseArray,
-                'sim/pose',
-                self.sim_pose_callback,
-                10)
-
-        # publishers for simulation
-        self.force_pubs = [None for _ in range(8)]
-        self.force_pubs[CHANNEL_FL] = self.create_publisher(Float64, 'sim/force_FL', 1)
-        self.force_pubs[CHANNEL_FR] = self.create_publisher(Float64, 'sim/force_FR', 1)
-        self.force_pubs[CHANNEL_BL] = self.create_publisher(Float64, 'sim/force_BL', 1)
-        self.force_pubs[CHANNEL_BR] = self.create_publisher(Float64, 'sim/force_BR', 1)
-        
-        self.force_pubs[CHANNEL_V_FL] = self.create_publisher(Float64, 'sim/force_TFL', 1)
-        self.force_pubs[CHANNEL_V_FR] = self.create_publisher(Float64, 'sim/force_TFR', 1)
-        self.force_pubs[CHANNEL_V_BL] = self.create_publisher(Float64, 'sim/force_TBL', 1)
-        self.force_pubs[CHANNEL_V_BR] = self.create_publisher(Float64, 'sim/force_TBR', 1)
-
     def goal_pose_callback(self, msg):
         self.goal_pose = msg
 
@@ -221,8 +193,6 @@ class cmd_convert(Node):
         self.mc.run([motor_channel], value)
         self.motor_values[motor_channel] = float(value)
         self.publish_motor_values()
-        if SIM:
-            self.publish_motor_forces()
 
 
     def publish_motor_values(self):
@@ -239,26 +209,6 @@ class cmd_convert(Node):
 
         self.motor_pub.publish(msg)
 
-    def publish_motor_forces(self):
-        for pub, value in zip(self.force_pubs, self.motor_values):
-            msg = Float64()
-            msg.data = math.copysign(3.5 * (value**2), value) # Force ~= sign(motor_percent) * 3.5 * motor_percent ^ 2
-            pub.publish(msg)
-    
-    def sim_pose_callback(self, msg: PoseArray):
-        if(msg.poses):
-            pose = msg.poses[0]
-
-            # Transform from ENU to NED coordinate systems
-            pose.orientation.y = -pose.orientation.y
-            pose.orientation.z = -pose.orientation.z
-
-            pose.position.y = -pose.position.y
-            pose.position.z = -pose.position.z
-
-            self.pose_callback(pose)
-        else:
-            self.get_logger().warning("received an empty pose array from the simulation")
 
     def experimental_callback(self, msg):
         z_channels = [3,4,5,6]

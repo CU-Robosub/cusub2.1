@@ -16,6 +16,16 @@ sudo apt-get install ros-humble-ros-gz
 
 ## Launch Thruster Sim ##
 
+Run launch script (requires tmux)
+
+``` bash
+gazebo/launch_thruster.sh
+```
+
+This script will launch create a tmux session and automatically build and launch ROS, and launch Gazebo. To switch between the terminal windows, hit `^b` (ctrl-b) and type the window number (as seen on the bottom of the screen). To To kill the tmux session, hit `^b`  and type `:kill-session`.
+
+## Manual Thruster Sim Launch ##
+
 Launch Gazebo (must be in /gazebo dir!)
 
 ``` bash
@@ -34,7 +44,7 @@ Launch ROS (source local ROS)
 
 ``` bash
 source install/setup.sh
-ros2 launch motor_control motor_control_launch.xml
+ros2 launch simulation thruster_sim_launch.xml
 ```
 
 ## Publishing to ROS (source local ROS) ##
