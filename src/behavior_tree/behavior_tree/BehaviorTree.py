@@ -143,36 +143,37 @@ class Action(Node):
 
 
 # example
-def enemy_near():
-    return random.randint(0,1)
-def low_health():
-    return random.randint(0,1)# Example Actions
-def task_move():
-    print("Moving...")
-    return True
-def task_attack():
-    print("Attacking...")
-    return True
-def task_retreat():
-    print("Retreating...")
-    return True
-def task_defend():
-    print("Defending...")
-    return True
-def task_patrol():
-    print("Patrolling...")
-    return True# Building the Behavior Tree
-root = Selector("Root Selector")# Sequence for combat
-combat_sequence = Sequence("Combat Sequence")
-combat_sequence.add_child(Condition("Enemy Near?", enemy_near))
-combat_sequence.add_child(Action("Attack", task_attack))# Defensive behavior
-defensive_selector = Selector("Defensive Behavior")
-defensive_selector.add_child(Condition("Low Health?", low_health))
-defensive_selector.add_child(Action("Retreat", task_retreat))
-defensive_selector.add_child(Action("Defend", task_defend))# Fallback patrol if nothing else happens
-patrol_action = Action("Patrol", task_patrol)# Assembling tree
-root.add_child(combat_sequence)  # Tries combat first
-root.add_child(defensive_selector)  # Falls back to defensive actions
-root.add_child(patrol_action)  # If nothing else, patrol# Running the behavior tree
-root.evaluate()
-root.display(save_name='my_Tree')
+if __name__=='__main__':
+    def enemy_near():
+        return random.randint(0,1)
+    def low_health():
+        return random.randint(0,1)# Example Actions
+    def task_move():
+        print("Moving...")
+        return True
+    def task_attack():
+        print("Attacking...")
+        return True
+    def task_retreat():
+        print("Retreating...")
+        return True
+    def task_defend():
+        print("Defending...")
+        return True
+    def task_patrol():
+        print("Patrolling...")
+        return True# Building the Behavior Tree
+    root = Selector("Root Selector")# Sequence for combat
+    combat_sequence = Sequence("Combat Sequence")
+    combat_sequence.add_child(Condition("Enemy Near?", enemy_near))
+    combat_sequence.add_child(Action("Attack", task_attack))# Defensive behavior
+    defensive_selector = Selector("Defensive Behavior")
+    defensive_selector.add_child(Condition("Low Health?", low_health))
+    defensive_selector.add_child(Action("Retreat", task_retreat))
+    defensive_selector.add_child(Action("Defend", task_defend))# Fallback patrol if nothing else happens
+    patrol_action = Action("Patrol", task_patrol)# Assembling tree
+    root.add_child(combat_sequence)  # Tries combat first
+    root.add_child(defensive_selector)  # Falls back to defensive actions
+    root.add_child(patrol_action)  # If nothing else, patrol# Running the behavior tree
+    root.evaluate()
+    root.display(save_name='my_Tree')

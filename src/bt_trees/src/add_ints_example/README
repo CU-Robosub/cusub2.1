@@ -1,4 +1,0 @@
-DEMO bt tree implementation
-
-The AddTwoInts file is the example from the BT_CPP docs that implements a BT::Action using rclcpp::Client
-This demonstrates how a behavior tree can be used to schedule services, in this case a service that adds two ints

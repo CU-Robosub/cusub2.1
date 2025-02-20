@@ -1,0 +1,33 @@
+digraph {
+	"Root Selector" [color=black fillcolor=darkorange shape=box style="filled,rounded"]
+	"Combat Sequence" [color=black fillcolor=firebrick shape=box style="filled,rounded"]
+	"Root Selector" -> "Combat Sequence"
+	"Enemy Near?" [color=black fillcolor=midnightblue shape=box style="filled,rounded"]
+	"Combat Sequence" -> "Enemy Near?"
+	Attack [color=black fillcolor=darkolivegreen shape=box style="filled,rounded"]
+	"Combat Sequence" -> Attack
+	"Defensive Behavior" [color=black fillcolor=darkorange shape=box style="filled,rounded"]
+	"Root Selector" -> "Defensive Behavior"
+	"Low Health?" [color=black fillcolor=midnightblue shape=box style="filled,rounded"]
+	"Defensive Behavior" -> "Low Health?"
+	Retreat [color=black fillcolor=darkolivegreen shape=box style="filled,rounded"]
+	"Defensive Behavior" -> Retreat
+	Defend [color=black fillcolor=darkolivegreen shape=box style="filled,rounded"]
+	"Defensive Behavior" -> Defend
+	Patrol [color=black fillcolor=darkolivegreen shape=box style="filled,rounded"]
+	"Root Selector" -> Patrol
+	subgraph cluster_legend {
+		color=lightgrey fontsize=16 label=Legend style=filled
+		Composite [label="Composite Node" fillcolor=bisque4 shape=box style="filled,rounded"]
+		Sequence [label="Sequence Node" fillcolor=firebrick shape=box style="filled,rounded"]
+		Selector [label="Selector Node" fillcolor=darkorange shape=box style="filled,rounded"]
+		Decorator [label="Inverter Node" fillcolor=crimson shape=box style="filled,rounded"]
+		Condition [label="Condition Node" fillcolor=midnightblue shape=box style="filled,rounded"]
+		Action [label="Action Node" fillcolor=darkolivegreen shape=box style="filled,rounded"]
+		Composite -> Sequence [style=invis]
+		Sequence -> Selector [style=invis]
+		Selector -> Decorator [style=invis]
+		Decorator -> Condition [style=invis]
+		Condition -> Action [style=invis]
+	}
+}

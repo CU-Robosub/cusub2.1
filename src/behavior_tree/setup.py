@@ -6,6 +6,7 @@ setup(
     name=package_name,
     version='0.0.0',
     packages=find_packages(exclude=['test']),
+    py_modules=[f'behavior_tree.BehaviorTree'],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -20,6 +21,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+                'talker = behavior_tree.publisher_member_function:main',
+                'listener = behavior_tree.subscriber_member_function:main',
         ],
     },
 )
