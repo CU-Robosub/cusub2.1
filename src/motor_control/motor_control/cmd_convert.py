@@ -104,6 +104,10 @@ class cmd_convert(Node):
         self.pid_depth = PID()
         self.current_pose = Pose()
         self.goal_pose = Pose()
+        
+        # clear motors
+        self.mc.clearMotors()
+        
 
         self.pid_pitch = PID(1, 0, 0) # pitch  angular y
         self.pid_roll = PID(1, 0, 0)  # roll   angular x

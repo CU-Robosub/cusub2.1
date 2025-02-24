@@ -10,7 +10,8 @@ There are two things to note about the Maestro:
 - You must manually convert the desired PWM signal to byte-level code. This is why you see shifts and hex values in the code. The documentation for this process can be seen [here.](https://www.pololu.com/docs/0J40/5.c)
 
 ## How to update/maintain
-The function that sends commands to the Maestro is `motorController.run(self, channels, target, duration=-1)`. This function takes in an array of channels (or just one) and sends a given command to these channel(s). 
-### To be implemented:
-We plan to map each command from the joystick (right/left, forward/back) to a certain motor group. The goal is to use a map that returns an array of channels for each desired command passed to it. This array of channels will then be passed into the run function.
+The function that sends commands to the Maestro is `motorController.run(self, channels, target, duration=-1)`. This function takes in an array of channels (or just one) and sends a given command to these channel(s). The mapping from the channel on the maestro to the motor number can be seen in the picture below. The code accesses these motors through arrays of seemingly arbitrary indices, so this is quite helpful. It is best to ensure that nobody changes the order in which the motors are plugged in on the maestro.
+![IMG_0607](https://github.com/user-attachments/assets/9c323e78-4d39-477e-9599-3f3b5e5681d4)
+
+
 
