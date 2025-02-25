@@ -72,6 +72,12 @@ class cmd_convert(Node):
 
     def __init__(self):
         super().__init__('cmd_convert')
+
+        self.is_sim = self.declare_parameter("is_simulation", False).value
+
+        if(self.is_sim):
+            self.get_logger().info('running in simulation')
+
         self.cmd_vel_sub = self.create_subscription(
             Twist,
             'cmd_vel',
@@ -106,7 +112,7 @@ class cmd_convert(Node):
         self.goal_pose = Pose()
         
         # clear motors
-        self.mc.clearMotors()
+        # self.mc.clearMotors() # TODO This call throws an error
         
 
         self.pid_pitch = PID(1, 0, 0) # pitch  angular y
