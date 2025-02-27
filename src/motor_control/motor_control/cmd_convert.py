@@ -9,6 +9,7 @@ from .PID_controller import PID
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Point
 from sensor_msgs.msg import Joy
 from custom_interfaces.srv import SetPIDValues
 from custom_interfaces.msg import ThrusterValues
@@ -107,14 +108,16 @@ class cmd_convert(Node):
         self.change_pid_pitch_values = self.create_service(SetPIDValues, "set_pid_pitch_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_pitch))
         
         self.mc = motorController()
-        self.pid_depth = PID()
         self.current_pose = Pose()
+        
         self.goal_pose = Pose()
+        self.goal_pose.position = Point(x=0.0, y=0.0, z=-3.0)
+        self.goal_pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
         
         # clear motors
         # self.mc.clearMotors() # TODO This call throws an error
         
-
+        self.pid_depth = PID(1, 0, 0)
         self.pid_pitch = PID(1, 0, 0) # pitch  angular y
         self.pid_roll = PID(1, 0, 0)  # roll   angular x
         
@@ -126,7 +129,7 @@ class cmd_convert(Node):
 
     def pose_callback(self, msg):
         self.current_pose = msg
-        self.stability_loop() # keep sub level
+        self.control_loop()
     
     def change_pid_values_callback(self, request, response, pid):
         if(request.kp != -1):
@@ -176,7 +179,19 @@ class cmd_convert(Node):
             self.mc.run(forward_channels,msg.angular.z, INVERT=False)
             self.mc.run(backward_channels,msg.angular.z, INVERT=True)
     
-    def stability_loop(self):
+    def control_loop(self):
+        outputs = [0.0 for _ in range(8)]
+
+        self.stability_loop(outputs)
+        self.depth_loop(outputs)
+
+        normalize_motor_outputs(outputs, 1)
+
+        for i, output in enumerate(outputs):
+            self.run_motor(i, output)
+
+    def stability_loop(self, outputs: list[int]):
+
         euler = quaternion_to_euler(self.current_pose.orientation)
         
         # calculate outputs
@@ -185,18 +200,25 @@ class cmd_convert(Node):
 
         # +roll_output  -> +left motors  -right motors -> increased roll
         # +pitch_output -> +front motors -back motors  -> increased pitch
-        fl_output = roll_output + pitch_output
-        fr_output = -roll_output + pitch_output
-        bl_output = roll_output - pitch_output
-        br_output = -roll_output - pitch_output
+        outputs[CHANNEL_V_FL] += roll_output + pitch_output
+        outputs[CHANNEL_V_FR] += -roll_output + pitch_output
+        outputs[CHANNEL_V_BL] += roll_output - pitch_output
+        outputs[CHANNEL_V_BR] += -roll_output - pitch_output
 
-        [fl_output, fr_output, bl_output, br_output] = normalize_motor_outputs([fl_output, fr_output, bl_output, br_output], 1)
+    
+    def depth_loop(self, outputs: list[int]):
 
-        # apply outputs
-        self.run_motor(CHANNEL_V_FL, fl_output)
-        self.run_motor(CHANNEL_V_FR, fr_output)
-        self.run_motor(CHANNEL_V_BL, bl_output)
-        self.run_motor(CHANNEL_V_BR, br_output)
+        current_depth = self.current_pose.position.z
+        goal_depth = self.goal_pose.position.z
+
+        # calculate output, invert
+        depth_output = -self.pid_depth.calculateOutput(current_depth, goal_depth)
+
+        # add outputs
+        outputs[CHANNEL_V_FL] += depth_output
+        outputs[CHANNEL_V_FR] += depth_output
+        outputs[CHANNEL_V_BL] += depth_output
+        outputs[CHANNEL_V_BR] += depth_output
 
 
     def run_motor(self, motor_channel: int, value: float):
