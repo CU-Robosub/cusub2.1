@@ -4,7 +4,7 @@
     PURPOSE: Test code to test motor controller
 """
 from motorController import motorController
-from submodules.Maestro import maestro
+from .submodules.Maestro import maestro
 import time
 
 # All of this servo code is needed to clear maestro errors
