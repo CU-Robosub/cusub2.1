@@ -1,0 +1,378 @@
+<sdf version='1.8'>
+  <model name='chimera_URDF_real'>
+    <link name='base_link'>
+      <pose degrees="true">0 0 0 180 0 0</pose>
+      <inertial>
+        <pose>0 0 0.1395 0 0 0</pose>
+        <mass>7.055</mass> <!-- 7.85 (displacement of colliders) - 8*0.1 from thruster links-->
+        <inertia>
+          <ixx>0.03</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.04</iyy>
+          <iyz>0</iyz>
+          <izz>0.04</izz>
+        </inertia>
+      </inertial>
+      <!-- <collision name='base_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>./meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision> -->
+      <collision name="cylinder_collider">
+        <pose>0 0 0.2185 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.1</radius>
+            <length>0.25</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>./meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.8 1</ambient>
+          <diffuse>0.2 0.2 0.9 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>  
+          <shininess>5</shininess>  
+      </material>
+      </visual>
+    </link>
+
+    <link name='thruster_front_left'>
+      <pose>0.2256 -0.2447 -0.1397 0 0 0.523599</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0 0.9</ambient>
+          <diffuse>1.0 0.0 0 0.9</diffuse>
+          <specular>1.0 0.0 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0 1</ambient>
+          <diffuse>1.0 0.0 0 1</diffuse>
+          <specular>1.0 0.0 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name='thruster_front_right'>
+      <pose>0.2256 0.2447 -0.1397 0 0 -0.523599</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>0.0 1.0 0 0.9</ambient>
+          <diffuse>0.0 1.0 0 0.9</diffuse>
+          <specular>0.0 1.0 0 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.0 1.0 0 1</ambient>
+          <diffuse>0.0 1.0 0 1</diffuse>
+          <specular>0.0 1.0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name='thruster_back_left'>
+      <pose>-0.2256 -0.2447 -0.1397 0 0 -0.523599</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>1.0 0.5 0.5 0.9</ambient>
+          <diffuse>1.0 0.5 0.5 0.9</diffuse>
+          <specular>1.0 0.5 0.5 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1.0 0.5 0.5 1</ambient>
+          <diffuse>1.0 0.5 0.5 1</diffuse>
+          <specular>1.0 0.5 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name='thruster_back_right'>
+      <pose>-0.2256 0.2447 -0.1397 0 0 0.523599</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>0.5 1.0 0.5 0.9</ambient>
+          <diffuse>0.5 1.0 0.5 0.9</diffuse>
+          <specular>0.5 1.0 0.5 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.5 1.0 0.5 1</ambient>
+          <diffuse>0.5 1.0 0.5 1</diffuse>
+          <specular>0.5 1.0 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <link name='thruster_top_front_left'>
+      <pose>0.1270 -0.2141 -0.2185 0 1.5708 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0 0.9</ambient>
+          <diffuse>1.0 0.0 0 0.9</diffuse>
+          <specular>1.0 0.0 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0 1</ambient>
+          <diffuse>1.0 0.0 0 1</diffuse>
+          <specular>1.0 0.0 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name='thruster_top_front_right'>
+      <pose>0.1270 0.2141 -0.2185 0 1.5708 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>0.0 1.0 0 0.9</ambient>
+          <diffuse>0.0 1.0 0 0.9</diffuse>
+          <specular>0.0 1.0 0 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.0 1.0 0 1</ambient>
+          <diffuse>0.0 1.0 0 1</diffuse>
+          <specular>0.0 1.0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name='thruster_top_back_left'>
+      <pose>-0.1270 -0.2141 -0.2185 0 1.5708 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>1.0 0.5 0.5 0.9</ambient>
+          <diffuse>1.0 0.5 0.5 0.9</diffuse>
+          <specular>1.0 0.5 0.5 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1.0 0.5 0.5 1</ambient>
+          <diffuse>1.0 0.5 0.5 1</diffuse>
+          <specular>1.0 0.5 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name='thruster_top_back_right'>
+      <pose>-0.1270 0.2141 -0.2185 0 1.5708 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+      <visual name="visual">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.1 0.01 0.01</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>0.5 1.0 0.5 0.9</ambient>
+          <diffuse>0.5 1.0 0.5 0.9</diffuse>
+          <specular>0.5 1.0 0.5 0.9</specular>
+        </material>
+      </visual>
+      <visual name="prop">
+        <geometry>
+          <box>
+            <size>0.005 0.076 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.5 1.0 0.5 1</ambient>
+          <diffuse>0.5 1.0 0.5 1</diffuse>
+          <specular>0.5 1.0 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="thruster_joint_FL" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_front_left</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+    <joint name="thruster_joint_FR" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_front_right</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+    <joint name="thruster_joint_BL" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_back_left</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+    <joint name="thruster_joint_BR" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_back_right</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+
+    <joint name="thruster_joint_TFL" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_top_front_left</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+    <joint name="thruster_joint_TFR" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_top_front_right</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+    <joint name="thruster_joint_TBL" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_top_back_left</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+    <joint name="thruster_joint_TBR" type="revolute">
+      <pose>0 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>thruster_top_back_right</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit></limit>
+      </axis>
+    </joint>
+
+  </model>
+</sdf>

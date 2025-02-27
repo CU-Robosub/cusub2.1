@@ -1,0 +1,198 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+    <world name="thruster">
+        <physics name="1ms" type="ignored">
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+        </physics>
+        <plugin
+            filename="libignition-gazebo-physics-system.so"
+            name="ignition::gazebo::systems::Physics">
+        </plugin>
+        <plugin
+            filename="libignition-gazebo-user-commands-system.so"
+            name="ignition::gazebo::systems::UserCommands">
+        </plugin>
+        <plugin
+            filename="libignition-gazebo-scene-broadcaster-system.so"
+            name="ignition::gazebo::systems::SceneBroadcaster">
+        </plugin>
+
+        <plugin
+            filename="libignition-gazebo-buoyancy-system.so"
+            name="ignition::gazebo::systems::Buoyancy">
+            <uniform_fluid_density>1000</uniform_fluid_density>
+            <enable>sub</enable>              
+        </plugin>
+
+        <light type="directional" name="sun">
+            <cast_shadows>true</cast_shadows>
+            <pose>0 0 10 0 0 0</pose>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.2 0.2 0.2 1</specular>
+            <attenuation>
+                <range>1000</range>
+                <constant>0.9</constant>
+                <linear>0.01</linear>
+                <quadratic>0.001</quadratic>
+            </attenuation>
+            <direction>-0.5 0.1 -0.9</direction>
+        </light>
+
+        <model name="environment">
+            <pose>0 0 0 0 0 0</pose>
+            <static>true</static>
+            <link name="base_link">
+                <visual name="floor">
+                    <geometry>
+                        <plane>
+                            <size>10 10</size>
+                        </plane>
+                    </geometry>
+                    <material>
+                        <diffuse>0.3 0.3 0.3 1</diffuse>
+                        <ambient>0.3 0.3 0.3 1</ambient>
+                      </material>
+                </visual>
+                <collision name="collision">
+                    <geometry>
+                        <plane>
+                            <size>10 10</size>
+                        </plane>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <model name="sub">
+            <pose>0 0 1 0 0 0</pose>
+            <include merge="true">
+                <pose degrees="true">0 0 0 180 0 0</pose>
+                <uri>chimera</uri>
+
+                <!-- Publish -->
+                <!-- ign topic -t /model/sub/joint/thruster_joint_BR/cmd_thrust -m ignition.msgs.Double -p "data: -1"-->
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_FL</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_FR</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_BL</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_BR</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_TFL</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_TFR</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_TBL</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-thruster-system"
+                    name="ignition::gazebo::systems::Thruster">
+                    <namespace>sub</namespace>
+                    <!-- <topic>thruster_FL</topic> -->
+                    <joint_name>thruster_joint_TBR</joint_name>
+                    <thrust_coefficient>0.0011</thrust_coefficient>
+                    <fluid_density>1000</fluid_density>
+                    <propeller_diameter>0.076</propeller_diameter>
+                </plugin>
+                <!-- https://gazebosim.org/api/gazebo/6/classignition_1_1gazebo_1_1systems_1_1Hydrodynamics.html -->
+                <!-- ChatGPT values, who knows how they'll perform -->
+                <plugin
+                    filename="libignition-gazebo-hydrodynamics-system"
+                    name="ignition::gazebo::systems::Hydrodynamics">
+                    <link_name>base_link</link_name>
+                    <xDotU>-2</xDotU>
+                    <yDotV>-3</yDotV>
+                    <zDotW>-3</zDotW>
+                    <kDotP>-0.1</kDotP>
+                    <mDotQ>-0.2</mDotQ>
+                    <nDotR>-0.2</nDotR>
+                    <xUabsU>-15</xUabsU>
+                    <xU>-5</xU>
+                    <yVabsV>-15</yVabsV>
+                    <yV>-5</yV>
+                    <zWabsW>-15</zWabsW>
+                    <zW>-5</zW>
+                    <kPabsP>-5</kPabsP>
+                    <kP>-1</kP>
+                    <mQabsQ>-5</mQabsQ>
+                    <mQ>-1</mQ>
+                    <nRabsR>-5</nRabsR>
+                    <nR>-1</nR>
+                </plugin>
+
+                <plugin
+                    filename="libignition-gazebo-odometry-publisher-system"
+                    name="ignition::gazebo::systems::OdometryPublisher">
+                    <dimensions>3</dimensions>
+                </plugin>
+
+            </include>
+        </model>
+
+    </world>
+</sdf>

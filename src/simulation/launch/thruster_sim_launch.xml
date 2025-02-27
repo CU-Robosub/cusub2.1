@@ -1,0 +1,8 @@
+<!-- Launch the simulation nodes required for the Gazebo 'thruster' simulation -->
+<launch>
+  <node pkg="simulation" exec="sim_thruster" name="sim_thruster"/>
+  <node pkg="simulation" exec="sim_pose" name="sim_pose"/>
+  <node pkg="motor_control" exec="cmd_convert" name="cmd_convert">
+    <param name="is_simulation" value="True"/>
+  </node>
+</launch>

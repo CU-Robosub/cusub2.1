@@ -1,26 +1,83 @@
+import math
+
+import yaml
 import rclpy
 from rclpy.node import Node
+from rclpy.publisher import Publisher
 from .motorController import motorController # Class with motor control functions
 from .PID_controller import PID
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
-from std_msgs.msg import Bool
+from geometry_msgs.msg import Quaternion
 from sensor_msgs.msg import Joy
-from std_msgs.msg import String
 from custom_interfaces.srv import SetPIDValues
+from custom_interfaces.msg import ThrusterValues
 import numpy as np
 
 DEPTH_TOLERANCE = 0.1
+
+with open('src/cfg/sub_properties.yaml') as f:
+    file = yaml.safe_load(f)
+    CHANNEL_FL = file['front_left_id']
+    CHANNEL_FR = file['front_right_id']
+    CHANNEL_BL = file['back_left_id']
+    CHANNEL_BR = file['back_right_id']
+    CHANNEL_V_FL = file['vertical_front_left_id']
+    CHANNEL_V_FR = file['vertical_front_right_id']
+    CHANNEL_V_BL = file['vertical_back_left_id']
+    CHANNEL_V_BR = file['vertical_back_right_id']
+
 # import testMC # importing this clears the motors for use
 """
 AUTHOR: JAKE TUCKER
 EMAIL: jakob.tucker@colorado.edu
 PURPOSE: Subscribe to cmd_vel, publish value to motorController to send to servos, as well as find the depth level
 """
+
+def quaternion_to_euler(quat: Quaternion) -> tuple[float, float, float]:
+    # Convert quaternion to Euler angles
+    x = quat.x
+    y = quat.y
+    z = quat.z
+    w = quat.w
+    t0 = +2.0 * (w * x + y * z)
+    t1 = +1.0 - 2.0 * (x * x + y * y)
+    roll = math.atan2(t0, t1)
+    t2 = +2.0 * (w * y - z * x)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch = math.asin(t2)
+    t3 = +2.0 * (w * z + x * y)
+    t4 = +1.0 - 2.0 * (y * y + z * z)
+    yaw = math.atan2(t3, t4)
+    return roll, pitch, yaw
+
+def normalize_motor_outputs(outputs: tuple[float, float, float, float], max_magnitude: float) -> tuple[float, float, float, float]:
+    max_output = max([abs(x) for x in outputs])
+    
+    if max_output > max_magnitude:
+        # Scale the outputs so the maximum output has a magnitude of max_magnitude
+        ratio = max_magnitude/max_output
+        outputs = [x * ratio for x in outputs]
+    
+    return outputs
+
 class cmd_convert(Node):
+
+    # type hinting for member variables
+    motor_pub: Publisher
+    motor_values: list[float]
+
+    force_pubs: list[Publisher] | None
 
     def __init__(self):
         super().__init__('cmd_convert')
+
+        self.is_sim = self.declare_parameter("is_simulation", False).value
+
+        if(self.is_sim):
+            self.get_logger().info('running in simulation')
+
         self.cmd_vel_sub = self.create_subscription(
             Twist,
             'cmd_vel',
@@ -37,30 +94,48 @@ class cmd_convert(Node):
             'goal_pose',
             self.goal_pose_callback,
             10)
-        self.change_pid_values = self.create_service(SetPIDValues, "change_pid_values", self.change_pid_values_callback)
+        
+        # publish the values we send to the motor controller
+        self.motor_pub = self.create_publisher(
+            ThrusterValues,
+            'cmd_thruster_values',
+            10)        
+        
+        # Services for changing PID constants on the fly
+        self.change_pid_depth_values = self.create_service(SetPIDValues, "set_pid_depth_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_depth))
+        self.change_pid_roll_values = self.create_service(SetPIDValues, "set_pid_roll_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_roll))
+        self.change_pid_pitch_values = self.create_service(SetPIDValues, "set_pid_pitch_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_pitch))
+        
         self.mc = motorController()
-        self.pid = PID()
+        self.pid_depth = PID()
         self.current_pose = Pose()
         self.goal_pose = Pose()
         
         # clear motors
-        self.mc.clearMotors()
+        # self.mc.clearMotors() # TODO This call throws an error
         
+
+        self.pid_pitch = PID(1, 0, 0) # pitch  angular y
+        self.pid_roll = PID(1, 0, 0)  # roll   angular x
+        
+        # initialize motor_values
+        self.motor_values = [0.0 for _ in range(8)]
 
     def goal_pose_callback(self, msg):
         self.goal_pose = msg
 
     def pose_callback(self, msg):
         self.current_pose = msg
+        self.stability_loop() # keep sub level
     
-    def change_pid_values_callback(self, request, response):
+    def change_pid_values_callback(self, request, response, pid):
         if(request.kp != -1):
-            self.pid.setKP(request.kp)
+            pid.setKP(request.kp)
         if(request.kd != -1):
-            self.pid.setKD(request.kd)
+            pid.setKD(request.kd)
         if(request.ki != -1):
-            self.pid.setKI(request.ki)
-        
+            pid.setKI(request.ki)
+
         response.success = True
         return response
 
@@ -86,7 +161,7 @@ class cmd_convert(Node):
             self.mc.killAll(channels)
         if (self.current_pose.position.z > self.goal_pose.position.z + DEPTH_TOLERANCE or self.current_pose.position.z < self.goal_pose.position.z - DEPTH_TOLERANCE):
             channels = [3,4,5,6]
-            self.mc.runDepthPID(channels, self.current_pose.position.z, self.goal_pose.position.z, self.pid)
+            self.mc.runDepthPID(channels, self.current_pose.position.z, self.goal_pose.position.z, self.pid_depth)
         else:
             channels = [3,4,5,6]
             self.mc.killAll(channels)
@@ -100,8 +175,51 @@ class cmd_convert(Node):
             backward_channels = [7,2] # dummy channel list
             self.mc.run(forward_channels,msg.angular.z, INVERT=False)
             self.mc.run(backward_channels,msg.angular.z, INVERT=True)
-        
     
+    def stability_loop(self):
+        euler = quaternion_to_euler(self.current_pose.orientation)
+        
+        # calculate outputs
+        roll_output = self.pid_roll.calculateOutput(euler[0], 0)
+        pitch_output = self.pid_pitch.calculateOutput(euler[1], 0)
+
+        # +roll_output  -> +left motors  -right motors -> increased roll
+        # +pitch_output -> +front motors -back motors  -> increased pitch
+        fl_output = roll_output + pitch_output
+        fr_output = -roll_output + pitch_output
+        bl_output = roll_output - pitch_output
+        br_output = -roll_output - pitch_output
+
+        [fl_output, fr_output, bl_output, br_output] = normalize_motor_outputs([fl_output, fr_output, bl_output, br_output], 1)
+
+        # apply outputs
+        self.run_motor(CHANNEL_V_FL, fl_output)
+        self.run_motor(CHANNEL_V_FR, fr_output)
+        self.run_motor(CHANNEL_V_BL, bl_output)
+        self.run_motor(CHANNEL_V_BR, br_output)
+
+
+    def run_motor(self, motor_channel: int, value: float):
+        self.mc.run([motor_channel], value)
+        self.motor_values[motor_channel] = float(value)
+        self.publish_motor_values()
+
+
+    def publish_motor_values(self):
+        msg = ThrusterValues()
+
+        msg.front_left = float(self.motor_values[CHANNEL_FL])
+        msg.front_right = float(self.motor_values[CHANNEL_FR])
+        msg.back_left = float(self.motor_values[CHANNEL_BL])
+        msg.back_right = float(self.motor_values[CHANNEL_BR])
+        msg.top_front_left = float(self.motor_values[CHANNEL_V_FL])
+        msg.top_front_right = float(self.motor_values[CHANNEL_V_FR])
+        msg.top_back_left = float(self.motor_values[CHANNEL_V_BR])
+        msg.top_back_right = float(self.motor_values[CHANNEL_V_BL])
+
+        self.motor_pub.publish(msg)
+
+
     def experimental_callback(self, msg):
         z_channels = [3,4,5,6]
         

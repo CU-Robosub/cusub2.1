@@ -9,7 +9,7 @@ import sys
 from .submodules.Maestro import maestro
 import yaml
 import logging
-from PID_controller import PID
+from .PID_controller import PID
 import numpy as np
  
 
