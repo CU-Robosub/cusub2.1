@@ -2,6 +2,7 @@
 <launch>
   <node pkg="simulation" exec="sim_thruster" name="sim_thruster"/>
   <node pkg="simulation" exec="sim_pose" name="sim_pose"/>
+  <node pkg="simulation" exec="sim_velocity" name="sim_velocity"/>
   <node pkg="motor_control" exec="cmd_convert" name="cmd_convert">
     <param name="is_simulation" value="True"/>
   </node>

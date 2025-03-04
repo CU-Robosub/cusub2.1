@@ -25,6 +25,7 @@ setup(
         'console_scripts': [
             'sim_thruster = simulation.sim_thruster:main',
             'sim_pose = simulation.sim_pose:main',
+            'sim_velocity = simulation.sim_velocity:main',
         ],
     },
 )
