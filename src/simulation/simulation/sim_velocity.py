@@ -31,6 +31,7 @@ class SimVelocity(Node):
 
         self.velocity_pub = self.create_publisher(Twist, 'velocity', 10)
         self.prev_time = self.get_clock().now().nanoseconds
+        self.prev_pose = Pose()
     
     def sim_pose_callback(self, msg: PoseArray):
         if(msg.poses):

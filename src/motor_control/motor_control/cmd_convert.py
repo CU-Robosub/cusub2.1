@@ -27,6 +27,9 @@ with open('src/cfg/sub_properties.yaml') as f:
     CHANNEL_V_FR = file['vertical_front_right_id']
     CHANNEL_V_BL = file['vertical_back_left_id']
     CHANNEL_V_BR = file['vertical_back_right_id']
+    H_THRUSTER_R = file['h_thruster_radius']
+    H_THRUSTER_A = file['h_thruster_angle']
+    H_THRUSTER_TA = file['h_thruster_torque_angle']
 
 # import testMC # importing this clears the motors for use
 """
@@ -71,6 +74,9 @@ class cmd_convert(Node):
 
     force_pubs: list[Publisher] | None
 
+    cmd_vel: Twist
+    velocity: Twist
+
     def __init__(self):
         super().__init__('cmd_convert')
 
@@ -82,7 +88,7 @@ class cmd_convert(Node):
         self.cmd_vel_sub = self.create_subscription(
             Twist,
             'cmd_vel',
-            self.experimental_callback,
+            self.cmd_vel_callback,
             10)
         self.last_msg_time = self.get_clock().now()
         self.pose_sub = self.create_subscription(
@@ -96,6 +102,12 @@ class cmd_convert(Node):
             self.goal_pose_callback,
             10)
         
+        self.vel_sub = self.create_subscription(
+            Twist,
+            'velocity',
+            self.velocity_callback,
+            10)
+        
         # publish the values we send to the motor controller
         self.motor_pub = self.create_publisher(
             ThrusterValues,
@@ -106,9 +118,14 @@ class cmd_convert(Node):
         self.change_pid_depth_values = self.create_service(SetPIDValues, "set_pid_depth_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_depth))
         self.change_pid_roll_values = self.create_service(SetPIDValues, "set_pid_roll_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_roll))
         self.change_pid_pitch_values = self.create_service(SetPIDValues, "set_pid_pitch_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_pitch))
-        
+        self.change_pid_vel_x_values = self.create_service(SetPIDValues, "set_pid_vel_x_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_vel_x))
+        self.change_pid_vel_y_values = self.create_service(SetPIDValues, "set_pid_vel_y_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_vel_y))
+
         self.mc = motorController()
         self.current_pose = Pose()
+
+        self.cmd_vel = Twist()
+        self.velocity = Twist()
         
         self.goal_pose = Pose()
         self.goal_pose.position = Point(x=0.0, y=0.0, z=-3.0)
@@ -120,6 +137,8 @@ class cmd_convert(Node):
         self.pid_depth = PID(1, 0, 0)
         self.pid_pitch = PID(1, 0, 0) # pitch  angular y
         self.pid_roll = PID(1, 0, 0)  # roll   angular x
+        self.pid_vel_x = PID(1, 0, 0) # x velocity
+        self.pid_vel_y = PID(1, 0, 0) # y velocity
         
         # initialize motor_values
         self.motor_values = [0.0 for _ in range(8)]
@@ -141,6 +160,9 @@ class cmd_convert(Node):
 
         response.success = True
         return response
+    
+    def velocity_callback(self, msg):
+        self.velocity = msg
 
     def listener_callback(self, msg): # test fxn for joy_node
         if(msg.linear.x > 0): # only send a command when vel is not 0
@@ -187,6 +209,8 @@ class cmd_convert(Node):
 
         normalize_motor_outputs(outputs, 1)
 
+        self.velocity_loop(outputs)
+
         for i, output in enumerate(outputs):
             self.run_motor(i, output)
 
@@ -228,6 +252,33 @@ class cmd_convert(Node):
         outputs[CHANNEL_V_BR] += depth_output
 
 
+    def velocity_loop(self, outputs: list[int]):
+        # calculate output
+        x_vel = self.velocity.linear.x
+        y_vel = self.velocity.linear.y
+
+        x_vel_output = self.pid_vel_x.calculateOutput(x_vel, self.cmd_vel.linear.x)
+        y_vel_output = self.pid_vel_y.calculateOutput(y_vel, self.cmd_vel.linear.y)
+
+        contributions = [0.0 for _ in range(8)]
+
+        # add outputs
+        contributions[CHANNEL_FL] += x_vel_output
+        contributions[CHANNEL_FR] += x_vel_output
+        contributions[CHANNEL_BL] += x_vel_output
+        contributions[CHANNEL_BR] += x_vel_output
+
+        contributions[CHANNEL_FL] += y_vel_output
+        contributions[CHANNEL_FR] += -y_vel_output
+        contributions[CHANNEL_BL] += y_vel_output
+        contributions[CHANNEL_BR] += -y_vel_output
+
+        normalize_motor_outputs(contributions, 1)
+
+        for i in range(8):
+            outputs[i] += contributions[i]
+
+
     def run_motor(self, motor_channel: int, value: float):
         self.mc.run([motor_channel], value)
         self.motor_values[motor_channel] = float(value)
@@ -248,6 +299,10 @@ class cmd_convert(Node):
 
         self.motor_pub.publish(msg)
 
+
+    def cmd_vel_callback(self, msg):
+        self.cmd_vel = msg
+        self.get_logger().info(f"Received cmd_vel: {msg}")
 
     def experimental_callback(self, msg):
         z_channels = [3,4,5,6]
