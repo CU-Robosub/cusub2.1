@@ -198,12 +198,19 @@ class cmd_convert(Node):
         roll_output = self.pid_roll.calculateOutput(euler[0], 0)
         pitch_output = self.pid_pitch.calculateOutput(euler[1], 0)
 
+        contributions = [0.0 for _ in range(8)]
+
         # +roll_output  -> +left motors  -right motors -> increased roll
         # +pitch_output -> +front motors -back motors  -> increased pitch
-        outputs[CHANNEL_V_FL] += roll_output + pitch_output
-        outputs[CHANNEL_V_FR] += -roll_output + pitch_output
-        outputs[CHANNEL_V_BL] += roll_output - pitch_output
-        outputs[CHANNEL_V_BR] += -roll_output - pitch_output
+        contributions[CHANNEL_V_FL] += roll_output + pitch_output
+        contributions[CHANNEL_V_FR] += -roll_output + pitch_output
+        contributions[CHANNEL_V_BL] += roll_output - pitch_output
+        contributions[CHANNEL_V_BR] += -roll_output - pitch_output
+
+        normalize_motor_outputs(contributions, 1)
+
+        for i in range(8):
+            outputs[i] += contributions[i]
 
     
     def depth_loop(self, outputs: list[int]):
@@ -212,7 +219,7 @@ class cmd_convert(Node):
         goal_depth = self.goal_pose.position.z
 
         # calculate output, invert
-        depth_output = -self.pid_depth.calculateOutput(current_depth, goal_depth)
+        depth_output = max(min(-self.pid_depth.calculateOutput(current_depth, goal_depth), 1), -1)
 
         # add outputs
         outputs[CHANNEL_V_FL] += depth_output
