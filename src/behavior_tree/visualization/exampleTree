@@ -1,0 +1,29 @@
+digraph {
+	Root_Sequence [color=black fillcolor=firebrick shape=box style="filled,rounded"]
+	Check_Battery [color=black fillcolor=midnightblue shape=box style="filled,rounded"]
+	Root_Sequence -> Check_Battery
+	Rotate_Sub [color=black fillcolor=darkslategray shape=box style="filled,rounded"]
+	Root_Sequence -> Rotate_Sub
+	Update_Direction [color=black fillcolor=firebrick shape=box style="filled,rounded"]
+	Rotate_Sub -> Update_Direction
+	Publish_Direction [color=black fillcolor=darkolivegreen shape=box style="filled,rounded"]
+	Update_Direction -> Publish_Direction
+	Check_Aligned [color=black fillcolor=midnightblue shape=box style="filled,rounded"]
+	Update_Direction -> Check_Aligned
+	subgraph cluster_legend {
+		color=lightgrey fontsize=16 label=Legend style=filled
+		Composite [label="Composite Node" fillcolor=bisque4 shape=box style="filled,rounded"]
+		Sequence [label="Sequence Node" fillcolor=firebrick shape=box style="filled,rounded"]
+		Selector [label="Selector Node" fillcolor=darkorange shape=box style="filled,rounded"]
+		Decorator [label="Inverter Node" fillcolor=crimson shape=box style="filled,rounded"]
+		Condition [label="Condition Node" fillcolor=midnightblue shape=box style="filled,rounded"]
+		Action [label="Action Node" fillcolor=darkolivegreen shape=box style="filled,rounded"]
+		Iterator [label="Iterator Node" fillcolor=darkslategray shape=box style="filled,rounded"]
+		Composite -> Sequence [style=invis]
+		Sequence -> Selector [style=invis]
+		Selector -> Decorator [style=invis]
+		Decorator -> Condition [style=invis]
+		Condition -> Action [style=invis]
+		Action -> Iterator [style=invis]
+	}
+}

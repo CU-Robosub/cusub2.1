@@ -40,13 +40,15 @@ class Node(ABC):
             legend.node("Decorator", label="Inverter Node", style="filled,rounded", fillcolor="crimson", shape="box")
             legend.node("Condition", label="Condition Node", style="filled,rounded", fillcolor="midnightblue", shape="box")
             legend.node("Action", label="Action Node", style="filled,rounded", fillcolor="darkolivegreen", shape="box")
-            
+            legend.node("Iterator", label="Iterator Node", style="filled,rounded", fillcolor="darkslategray", shape="box")
+
             # Arrange legend items using invisible edges
             legend.edge("Composite", "Sequence", style="invis")
             legend.edge("Sequence", "Selector", style="invis")
             legend.edge("Selector", "Decorator", style="invis")
             legend.edge("Decorator", "Condition", style="invis")
             legend.edge("Condition", "Action", style="invis")
+            legend.edge("Action", "Iterator", style="invis")
         
         # draw the graph with a tree layout
         G.render(save_name, format="png")
@@ -140,6 +142,21 @@ class Action(Node):
         print(f"Executing Action: {self.name}")
         return self.action()# Example Conditions
 
+# Iterator Nodes (evaluates child repeatedly until maxAttempts reached or true returned)
+class Iterator(Node):
+    def __init__(self, name, maxAttempts):
+        super().__init__(name)
+        self.node_color = 'darkslategray'
+        self.maxAttempts = maxAttempts
+
+    def evaluate(self):
+        for i in range(self.maxAttempts):
+            if self.child.evaluate():
+                return True
+            
+        return False
+
+    
 
 
 # example

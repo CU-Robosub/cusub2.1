@@ -47,7 +47,7 @@ class BTPublisher(rcl.Node, BehaviorTree.Action):
 def main(args=None):
     rclpy.init(args=args)
 
-    bt_publisher = BTPublisher('first_publisher', 'topic', 1)
+    bt_publisher = BTPublisher('first_publisher', 'topic', lambda : 'hello world')
 
     print('calling evaluate...')
     bt_publisher.evaluate()

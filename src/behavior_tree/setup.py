@@ -6,7 +6,11 @@ setup(
     name=package_name,
     version='0.0.0',
     packages=find_packages(exclude=['test']),
-    py_modules=[f'behavior_tree.BehaviorTree'],
+    py_modules=[
+        f'behavior_tree.BehaviorTree', 
+        f'behavior_tree.publisher_member_function',
+        f'behavior_tree.subscriber_member_function'
+    ],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -23,6 +27,7 @@ setup(
         'console_scripts': [
                 'talker = behavior_tree.publisher_member_function:main',
                 'listener = behavior_tree.subscriber_member_function:main',
+                'example_tree = behavior_tree.exampleTree:main'
         ],
     },
 )
