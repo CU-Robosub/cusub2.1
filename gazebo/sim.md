@@ -16,7 +16,12 @@ sudo apt-get install ros-humble-ros-gz
 
 ## Launch Thruster Sim ##
 
-Run launch script (requires tmux)
+Run launch script (requires tmux). If you do not have tmux run:
+
+```bash
+sudo apt install tmux
+```
+Then run:
 
 ``` bash
 gazebo/launch_thruster.sh
