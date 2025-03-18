@@ -1,10 +1,10 @@
-
 import rclpy
 from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclpy.subscription import Subscription
 
 from geometry_msgs.msg import Twist, Pose, PoseArray
+import numpy as np
 
 """
 AUTHOR: CURTIS PREEDOM
@@ -20,6 +20,9 @@ class SimVelocity(Node):
     prev_time: float
     prev_pose: Pose
 
+    vel_filter: Twist = Twist()
+    vel_filter_ratio: float = 0.5
+
     def __init__(self):
         super().__init__("SimVelocity")
 
@@ -33,25 +36,57 @@ class SimVelocity(Node):
         self.prev_time = self.get_clock().now().nanoseconds
         self.prev_pose = Pose()
     
+    def quaternion_to_rotation_matrix(self, q):
+        """
+        Convert a quaternion into a rotation matrix.
+        """
+        qx, qy, qz, qw = q
+        return np.array([
+            [1 - 2*qy**2 - 2*qz**2, 2*qx*qy - 2*qz*qw, 2*qx*qz + 2*qy*qw],
+            [2*qx*qy + 2*qz*qw, 1 - 2*qx**2 - 2*qz**2, 2*qy*qz - 2*qx*qw],
+            [2*qx*qz - 2*qy*qw, 2*qy*qz + 2*qx*qw, 1 - 2*qx**2 - 2*qy**2]
+        ])
+
     def sim_pose_callback(self, msg: PoseArray):
         if(msg.poses):
             pose = msg.poses[0]
 
             # Transform from ENU to NED coordinate systems
+            pose.orientation.y = -pose.orientation.y
+            pose.orientation.z = -pose.orientation.z
+
             pose.position.y = -pose.position.y
             pose.position.z = -pose.position.z
+
 
             time_now = self.get_clock().now().nanoseconds
             time_diff = (time_now - self.prev_time) / 1e9
 
             # Calculate velocity if the time since last data is short enough
             if(0.5 > time_diff > 0):
-                velocity = Twist()
-                velocity.linear.x = (pose.position.x - self.prev_pose.position.x) / time_diff
-                velocity.linear.y = (pose.position.y - self.prev_pose.position.y) / time_diff
-                velocity.linear.z = (pose.position.z - self.prev_pose.position.z) / time_diff
+                # Calculate velocity in world frame
+                vel_world = np.array([
+                    (pose.position.x - self.prev_pose.position.x) / time_diff,
+                    (pose.position.y - self.prev_pose.position.y) / time_diff,
+                    (pose.position.z - self.prev_pose.position.z) / time_diff
+                ])
 
-                self.velocity_pub.publish(velocity)
+                # Get the orientation quaternion
+                orientation = pose.orientation
+                quaternion = [orientation.x, orientation.y, orientation.z, orientation.w]
+
+                # Convert quaternion to rotation matrix
+                rotation_matrix = self.quaternion_to_rotation_matrix(quaternion)
+
+                # Transform velocity to vehicle frame
+                vel_vehicle = np.dot(rotation_matrix.T, vel_world)
+
+                # Apply low-pass filter
+                self.vel_filter.linear.x = (self.vel_filter.linear.x * (1 - self.vel_filter_ratio)) + (vel_vehicle[0] * self.vel_filter_ratio)
+                self.vel_filter.linear.y = (self.vel_filter.linear.y * (1 - self.vel_filter_ratio)) + (vel_vehicle[1] * self.vel_filter_ratio)
+                self.vel_filter.linear.z = (self.vel_filter.linear.z * (1 - self.vel_filter_ratio)) + (vel_vehicle[2] * self.vel_filter_ratio)
+
+                self.velocity_pub.publish(self.vel_filter)
 
             self.prev_time = time_now
             self.prev_pose = pose
