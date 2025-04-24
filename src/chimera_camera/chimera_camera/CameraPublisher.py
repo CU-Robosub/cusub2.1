@@ -7,8 +7,6 @@ import cv2
 import numpy as np
 
 
-CAMERA_PORT = 0
-
 class Camera(Node):
     def __init__(self):
         super().__init__('CameraPublisher')
@@ -22,6 +20,11 @@ class Camera(Node):
 
         # Initiate the CvBridge to convert OpenCV images into ROS images
         #self.bridge = CvBridge()
+
+        # initialize camera to /dev/video0; configurable at runtime with --ros-args -p
+        self.declare_parameter('camera_port', 0)
+        CAMERA_PORT = self.get_parameter('camera_port').get_parameter_value().integer_value
+        self.get_logger().info(f'Camera port is set to: {CAMERA_PORT}')
 
         # Opens up the camera port to be read from
         self.cam_feed = cv2.VideoCapture(CAMERA_PORT)
