@@ -26,6 +26,10 @@ class Camera(Node):
         CAMERA_PORT = self.get_parameter('camera_port').get_parameter_value().integer_value
         self.get_logger().info(f'Camera port is set to: {CAMERA_PORT}')
 
+        # parameter for displaying output
+        self.declare_parameter('display_output', False)
+        self.display_output = self.get_parameter('display_output').get_parameter_value().bool_value
+
         # Opens up the camera port to be read from
         self.cam_feed = cv2.VideoCapture(CAMERA_PORT)
 
@@ -99,14 +103,14 @@ class Camera(Node):
                 confidences.append(float(confidence))
 
 
+        if self.display_output:
+            # Display the resulting frame with bounding boxes
+            cv2.imshow('Webcam Feed with Detections', frame)
 
-        ''' Uncomment if you want to see bounding boxes 
-        # Display the resulting frame with bounding boxes
-        cv2.imshow('Webcam Feed with Detections', frame)
+            # Wait for a key press to keep the window responsive
+            cv2.waitKey(0)  
 
-        # Wait for a key press to keep the window responsive
-        cv2.waitKey(0)  
-        '''
+
         # Populate the response
         response.object_names = object_names
         response.object_positions_x = object_positions_x
