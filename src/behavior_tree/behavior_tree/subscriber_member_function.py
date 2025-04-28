@@ -22,9 +22,10 @@ import behavior_tree.BehaviorTree as BehaviorTree
 
 class BTSubscriber(rcl.Node, BehaviorTree.Condition):
 
-    def __init__(self, name : str, topic_name : str, condition): # condition must take 1 argument (subscriber message) and return true or false
+    def __init__(self, name : str, topic_name : str, condition, **kwargs): 
+        # condition must take 1 argument (subscriber message) and write to blackboard, then return true
         rcl.Node.__init__(self, name)                       # Node init
-        BehaviorTree.Condition.__init__(self, name, condition) # Action init
+        BehaviorTree.Condition.__init__(self, name, condition, **kwargs) # Action init
         self.subscription = self.create_subscription(
             String,
             topic_name,
