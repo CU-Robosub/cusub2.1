@@ -71,36 +71,37 @@ class Camera(Node):
         top_left = []
         bottom_right = []
     # Draw bounding boxes and labels
-        for detection in results[0].boxes:
-            
-            # Get the coords for the bounding box, confidence scores, and labels. The .cpu().numpy() moves the tensors to cpu memory where they can
-            #be converted to numpy arrays. Tensors can be converted to numpy in the GPU.
-    
-            xyxy = detection.xyxy.cpu().numpy()[0]
-            confidence = detection.conf.cpu().numpy()[0]
-            label = self.model.names[int(detection.cls.cpu().numpy()[0])]  
+        for result in results:
+            for detection in result.boxes:
+                
+                # Get the coords for the bounding box, confidence scores, and labels. The .cpu().numpy() moves the tensors to cpu memory where they can
+                #be converted to numpy arrays. Tensors can be converted to numpy in the GPU.
+        
+                xyxy = detection.xyxy.cpu().numpy()[0]
+                confidence = detection.conf.cpu().numpy()[0]
+                label = self.model.names[int(detection.cls.cpu().numpy()[0])]  
 
-      
-            start_point = (int(xyxy[0]), int(xyxy[1]))  # Top-left corner
-            end_point = (int(xyxy[2]), int(xyxy[3]))    # Bottom-right corner
-            cv2.rectangle(frame, start_point, end_point, (0, 255, 0), 2)  # Green box with thickness 2
+        
+                start_point = (int(xyxy[0]), int(xyxy[1]))  # Top-left corner
+                end_point = (int(xyxy[2]), int(xyxy[3]))    # Bottom-right corner
+                cv2.rectangle(frame, start_point, end_point, (0, 255, 0), 2)  # Green box with thickness 2
 
-            # Put the label and confidence on the frame
-            text = f"{label} {confidence:.2f}"
-            cv2.putText(frame, text, (int(xyxy[0]), int(xyxy[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                # Put the label and confidence on the frame
+                text = f"{label} {confidence:.2f}"
+                cv2.putText(frame, text, (int(xyxy[0]), int(xyxy[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            # Calculate center of bounding box
-            x_center = (xyxy[0] + xyxy[2]) / 2
-            y_center = (xyxy[1] + xyxy[3]) / 2
+                # Calculate center of bounding box
+                x_center = (xyxy[0] + xyxy[2]) / 2
+                y_center = (xyxy[1] + xyxy[3]) / 2
 
-            # Store detection data for response
-            if float(confidence) > 0.75:
-                top_left.extend([float(xyxy[0]), float(xyxy[1])])
-                bottom_right.extend([float(xyxy[2]), float(xyxy[3])])
-                object_names.append(label)
-                object_positions_x.append(float(x_center))
-                object_positions_y.append(float(y_center))
-                confidences.append(float(confidence))
+                # Store detection data for response
+                if float(confidence) > 0.75:
+                    top_left.extend([float(xyxy[0]), float(xyxy[1])])
+                    bottom_right.extend([float(xyxy[2]), float(xyxy[3])])
+                    object_names.append(label)
+                    object_positions_x.append(float(x_center))
+                    object_positions_y.append(float(y_center))
+                    confidences.append(float(confidence))
 
 
         if self.display_output:
