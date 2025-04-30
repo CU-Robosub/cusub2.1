@@ -2,7 +2,8 @@ import rclpy
 from custom_interfaces.srv import DetectObjects
 from ultralytics import YOLO
 from rclpy.node import Node
-#from cv_bridge import CvBridge
+from sensor_msgs.msg import CompressedImage
+from cv_bridge import CvBridge
 import cv2
 import numpy as np
 
@@ -13,13 +14,16 @@ class Camera(Node):
 
         self.get_logger().info("Initializing Camera Node")
 
+        # publisher for visualizing detection results
+        self.publisher = self.create_publisher(CompressedImage, 'annotated_image', 10)
+
         # Sets up the service with the custom type in ../srv/DetectObjects.srv
         self.srv = self.create_service(DetectObjects, 'detect_objects', self.detect_objects)
 
         self.model = YOLO("../models/yolo11m.pt")
 
         # Initiate the CvBridge to convert OpenCV images into ROS images
-        #self.bridge = CvBridge()
+        self.bridge = CvBridge()
 
         # initialize camera to /dev/video0; configurable at runtime with --ros-args -p
         self.declare_parameter('camera_port', 0)
@@ -44,7 +48,21 @@ class Camera(Node):
 
         self.get_logger().info("Camera Node Successfully Initialized")
 
+    def compress_and_publish_image(self, img):
         
+        # Resize the image
+        img_resized = cv2.resize(img, (640, 480))  # Adjust the size as needed
+
+        # Convert the OpenCV image to a ROS compressed image message
+        try:
+            image_msg = self.bridge.cv2_to_compressed_imgmsg(img_resized, dst_format='jpeg')  # Use JPEG compression
+        except CvBridgeError as e:
+            rclpy.logerr(e)
+            return -1
+
+        # Publish the compressed ROS image message
+        self.publisher.publish(image_msg)
+
 
     def cleanup(self):
         self.get_logger().info("Cleaning up resources...")
@@ -105,11 +123,7 @@ class Camera(Node):
 
 
         if self.display_output:
-            # Display the resulting frame with bounding boxes
-            cv2.imshow('Webcam Feed with Detections', frame)
-
-            # Wait for a key press to keep the window responsive
-            cv2.waitKey(0)  
+            self.compress_and_publish_image(frame)
 
 
         # Populate the response
