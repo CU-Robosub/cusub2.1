@@ -15,7 +15,7 @@ class Camera(Node):
         self.get_logger().info("Initializing Camera Node")
 
         # publisher for visualizing detection results
-        self.publisher = self.create_publisher(CompressedImage, 'annotated_image', 10)
+        self.publisher = self.create_publisher(CompressedImage, 'image_annotated', 10)
 
         # Sets up the service with the custom type in ../srv/DetectObjects.srv
         self.srv = self.create_service(DetectObjects, 'detect_objects', self.detect_objects)
