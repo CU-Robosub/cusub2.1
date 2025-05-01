@@ -11,11 +11,17 @@ from cv_bridge import CvBridge
 import cv2
 
 class Camera(Node):
-    def __init__(self, cameraport, topic):
-        super().__init__('CameraPublisher')
+    def __init__(self, topic):
+        super().__init__('CameraPublisherRaw')
         self.publisher = self.create_publisher(CompressedImage, topic, 10)
+
+        # initialize camera to /dev/video0; configurable at runtime with --ros-args -p
+        self.declare_parameter('camera_port', 0)
+        CAMERA_PORT = self.get_parameter('camera_port').get_parameter_value().integer_value
+        self.get_logger().info(f'Camera port is set to: {CAMERA_PORT}')
+
         self.bridge = CvBridge()
-        self.cam_feed = cv2.VideoCapture(cameraport)
+        self.cam_feed = cv2.VideoCapture(CAMERA_PORT)
 
     def compress_and_publish_image(self, topic='image_compressed'):
         ret, img = self.cam_feed.read()
@@ -35,7 +41,7 @@ class Camera(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    image = Camera(cameraport=0, topic='image')
+    image = Camera(topic='image')
     
     # Use image_transport for publishing compressed images
     image_transport = image.create_publisher(CompressedImage, 'image', 10)
