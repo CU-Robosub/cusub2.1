@@ -22,9 +22,9 @@ import behavior_tree.BehaviorTree as BehaviorTree
 
 class BTPublisher(rcl.Node, BehaviorTree.Action):
 
-    def __init__(self, name : str, topic_name : str, action): # action function must return string
+    def __init__(self, name : str, topic_name : str, action, **kwargs): # action function must return blackboard reads
         rcl.Node.__init__(self, name)                    # Node init
-        BehaviorTree.Action.__init__(self, name, action) # Action init
+        BehaviorTree.Action.__init__(self, name, action, **kwargs) # Action init
         self.publisher_ = self.create_publisher(String, topic_name, 10)
         self.i = 0 # keeps track of number of times published
 

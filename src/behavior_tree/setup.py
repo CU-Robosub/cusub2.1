@@ -9,7 +9,9 @@ setup(
     py_modules=[
         f'behavior_tree.BehaviorTree', 
         f'behavior_tree.publisher_member_function',
-        f'behavior_tree.subscriber_member_function'
+        f'behavior_tree.subscriber_member_function',
+        f'behavior_tree.client_member_function',
+        f'behavior_tree.service_member_function'
     ],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -27,7 +29,9 @@ setup(
         'console_scripts': [
                 'talker = behavior_tree.publisher_member_function:main',
                 'listener = behavior_tree.subscriber_member_function:main',
-                'example_tree = behavior_tree.exampleTree:main'
+                'example_tree = behavior_tree.exampleTree:main', 
+                'client = behavior_tree.client_member_function:main',
+                'service = behavior_tree.service_member_function:main'
         ],
     },
 )

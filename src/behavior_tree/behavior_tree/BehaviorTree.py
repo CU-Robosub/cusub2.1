@@ -4,13 +4,42 @@ import random
 # for tree visualization
 import graphviz
 
+from rclpy.logging import get_logger
+
+# custom blackboard for logging (and metadata)
+class Blackboard:
+    def __init__(self):
+        self.data = {}
+        self.logger = get_logger('blackboard')
+
+    def __setitem__(self, key, value):
+        self.data[key] = value
+        self.logger.info(f'Set {key} = {value}')
+
+    def __getitem__(self, key):
+        value = self.data.get(key)
+        self.logger.info(f'Get {key} -> {value}')
+        return value
+
 
 class Node(ABC):
-    def __init__(self, name):
+    def __init__(self, name, blackboard=None):
         self.name = name
+        self.blackboard = blackboard
         self.parent = None 
-        self.child = None 
+        self._child = None 
         self.node_color = 'grey'
+
+    # getter and setter methods. Used to propagate the blackboard when .child is set
+    @property
+    def child(self):
+        return self._child
+
+    @child.setter
+    def child(self, node):
+        # node is the object that .child points to
+        self._child = node
+        node.blackboard = self.blackboard
 
     def display(self, save_name='tree'):
         # display function shows tree as a directed graph
@@ -66,14 +95,15 @@ class Node(ABC):
     
 # Composite Nodes (Can have multiple children)
 class Composite(Node):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.children = []   
         self.node_color = 'bisque4' 
 
     def add_child(self, child):
         self.children.append(child)
         child.parent = self
+        child.blackboard = self.blackboard
 
     def traverse(self, function):
         # traverse the tree depth-first
@@ -83,8 +113,8 @@ class Composite(Node):
             child.traverse(function)
         
 class Sequence(Composite):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.node_color = 'firebrick'
 
     def evaluate(self):
@@ -96,8 +126,8 @@ class Sequence(Composite):
         return True
 
 class Selector(Composite):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.node_color = 'darkorange'
 
     def evaluate(self):
@@ -110,9 +140,8 @@ class Selector(Composite):
     
 # Inverter Nodes (Modify child behavior)    
 class Inverter(Node):
-    def __init__(self, name, child):
-        super().__init__(name)
-        self.child = child    
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.node_color = 'crimson'
         
     def evaluate(self):
@@ -121,8 +150,8 @@ class Inverter(Node):
     
 # Condition Nodes (passed condition function must return only True/False)    
 class Condition(Node):
-    def __init__(self, name, condition):
-        super().__init__(name)
+    def __init__(self, name, condition, **kwargs):
+        super().__init__(name, **kwargs)
         self.condition = condition   
         self.node_color = 'midnightblue' 
         
@@ -133,8 +162,8 @@ class Condition(Node):
     
 # Action Nodes (Perform actions)    
 class Action(Node):
-    def __init__(self, name, action):
-        super().__init__(name)
+    def __init__(self, name, action, **kwargs):
+        super().__init__(name, **kwargs)
         self.action = action    
         self.node_color = 'darkolivegreen'
 
@@ -144,8 +173,8 @@ class Action(Node):
 
 # Iterator Nodes (evaluates child repeatedly until maxAttempts reached or true returned)
 class Iterator(Node):
-    def __init__(self, name, maxAttempts):
-        super().__init__(name)
+    def __init__(self, name, maxAttempts, **kwargs):
+        super().__init__(name, **kwargs)
         self.node_color = 'darkslategray'
         self.maxAttempts = maxAttempts
 
