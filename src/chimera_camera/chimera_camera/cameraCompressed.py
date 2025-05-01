@@ -23,6 +23,14 @@ class Camera(Node):
         self.bridge = CvBridge()
         self.cam_feed = cv2.VideoCapture(CAMERA_PORT)
 
+        # tick length parameter for ticking the behavior tree
+        self.declare_parameter('fps', 30)
+        fps = self.get_parameter('fps').get_parameter_value().integer_value
+
+        TICK_LENGTH = 1 / fps
+
+        self.timer = self.create_timer(TICK_LENGTH, self.compress_and_publish_image)
+
     def compress_and_publish_image(self, topic='image_compressed'):
         ret, img = self.cam_feed.read()
         
@@ -34,7 +42,7 @@ class Camera(Node):
             image_msg = self.bridge.cv2_to_compressed_imgmsg(img_resized, dst_format='jpeg')  # Use JPEG compression
         except CvBridgeError as e:
             rclpy.logerr(e)
-            return -1
+            self.destroy_node()
 
         # Publish the compressed ROS image message
         self.publisher.publish(image_msg)
@@ -44,15 +52,11 @@ def main(args=None):
     image = Camera(topic='image')
     
     # Use image_transport for publishing compressed images
-    image_transport = image.create_publisher(CompressedImage, 'image', 10)
+    #image_transport = image.create_publisher(CompressedImage, 'image', 10)
     
-    while True:
-        if image.compress_and_publish_image() == -1:
-            break
-        if (cv2.waitKey(1) & 0xFF == ord("q")) or (cv2.waitKey(1) == 27):
-            image.destroy_node()
-            rclpy.shutdown()
-            break
+    rclpy.spin(image)
+    image.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
