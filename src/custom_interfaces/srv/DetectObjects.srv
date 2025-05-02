@@ -1,6 +1,7 @@
 # DetectObjects.srv
 
-# Request: No input required
+# Request: Which camera for the service to read from: (front, rear, top, bottom)
+string camera_id
 ---
 
 # Response: Detected object names, positions, and confidence scores
