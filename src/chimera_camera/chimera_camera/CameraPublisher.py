@@ -14,9 +14,6 @@ class Camera(Node):
 
         self.get_logger().info("Initializing Camera Node")
 
-        # publisher for visualizing detection results
-        self.publisher = self.create_publisher(CompressedImage, 'image_annotated', 10)
-
         # Sets up the service with the custom type in ../srv/DetectObjects.srv
         self.srv = self.create_service(DetectObjects, 'detect_objects', self.detect_objects)
 
@@ -25,59 +22,70 @@ class Camera(Node):
         # Initiate the CvBridge to convert OpenCV images into ROS images
         self.bridge = CvBridge()
 
-        # initialize camera to /dev/video0; configurable at runtime with --ros-args -p
-        self.declare_parameter('camera_port', 0)
-        CAMERA_PORT = self.get_parameter('camera_port').get_parameter_value().integer_value
-        self.get_logger().info(f'Camera port is set to: {CAMERA_PORT}')
-
         # parameter for displaying output
         self.declare_parameter('display_output', False)
         self.display_output = self.get_parameter('display_output').get_parameter_value().bool_value
 
-        # Opens up the camera port to be read from
-        self.cam_feed = cv2.VideoCapture(CAMERA_PORT)
+        # valid camera topic names for camera publishers, subscribers, and service requests
+        self.sub_map = {
+            "front": "/image/front/image_raw",
+            "rear": "/image/rear/image_raw",
+            "top": "/image/top/image_raw",
+            "bottom": "/image/bottom/image_raw"
+        }
 
-        # If camera does not open, shut down the node because it is useless
-        if not self.cam_feed.isOpened():
-            self.get_logger().error("Failed to open camera")
-            rclpy.shutdown()
-            return
+        self.pub_map = {
+            "front": "/image/front/image_annotated",
+            "rear": "/image/rear/image_annotated",
+            "top": "/image/top/image_annotated",
+            "bottom": "/image/bottom/image_annotated"
+        }
 
-        # OpenCV keeps a buffer of frames, we only need the most recent frame
-        self.cam_feed.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        # save all images from subscribed camera topics
+        self.image_cache = {}
 
-        self.get_logger().info("Camera Node Successfully Initialized")
+        # save publishers for each camera topic
+        self.pubs = {}
 
-    def compress_and_publish_image(self, img):
-        
-        # Resize the image
-        img_resized = cv2.resize(img, (640, 480))  # Adjust the size as needed
+        # find all valid running cameras
+        camera_topics = [n for n, t in self.get_topic_names_and_types() if n in self.sub_map.values()]
 
-        # Convert the OpenCV image to a ROS compressed image message
-        try:
-            image_msg = self.bridge.cv2_to_compressed_imgmsg(img_resized, dst_format='jpeg')  # Use JPEG compression
-        except CvBridgeError as e:
-            rclpy.logerr(e)
-            return -1
-
-        # Publish the compressed ROS image message
-        self.publisher.publish(image_msg)
-
-
-    def cleanup(self):
-        self.get_logger().info("Cleaning up resources...")
-        if self.cam_feed.isOpened():
-            self.cam_feed.release()
-        cv2.destroyAllWindows()
+        # does not read from /dev/ to prevent conflicts with cameraCompressed
+        # subscribes to all camera topics according to convention
+        for cam_id in self.sub_map.keys():
+            if self.sub_map[cam_id] in camera_topics:
+                self.create_subscription(CompressedImage, self.sub_map[cam_id], self.create_callback(self.sub_map[cam_id]), 10)
+                p = self.create_publisher(CompressedImage, self.pub_map[cam_id], 10)
+                self.pubs[cam_id] = p
+        if not camera_topics:
+            self.get_logger().error(f'No active camera topics found!')
+        else:
+            self.get_logger().info(f"Detect Objects Service Successfully Initialized, subscribed to {camera_topics}")
+    
+    # callback retains access to topic to cache the returned msg
+    def create_callback(self, topic):
+        def callback(msg):
+            self.image_cache[topic] = msg
+        return callback
 
     def detect_objects(self, request, response):
 
-        unused = self.cam_feed.read()  # Clear buffer
-        ret, frame = self.cam_feed.read()  # Get the latest frame
+        # recieve requested camera topic in DetectObjects.camera_topic
+        camera_id = request.camera_id
 
-        if not ret:
-            self.get_logger().error("Could not read camera")
+        camera_topic = self.sub_map.get(camera_id)
+
+        if not camera_topic:
+            self.get_logger().error(f"Invalid camera_id: {camera_id}. Select from 'front, rear, top, bottom")
             return response
+        elif camera_topic not in self.image_cache.keys():
+            self.get_logger().error(f"Unavailable camera_id: {camera_id}")
+            return response
+
+        # retrieve latest frame from image cache
+        msg = self.image_cache[camera_topic]
+        np_arr = np.frombuffer(msg.data, np.uint8)
+        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
         # Perform object detection on the frame using YOLO11m
         results = self.model(frame)
@@ -123,7 +131,19 @@ class Camera(Node):
 
 
         if self.display_output:
-            self.compress_and_publish_image(frame)
+            # Resize the image
+            img_resized = cv2.resize(frame, (640, 480))  # Adjust the size as needed
+
+            # Convert the OpenCV image to a ROS compressed image message
+            try:
+                image_msg = self.bridge.cv2_to_compressed_imgmsg(img_resized, dst_format='jpeg')  # Use JPEG compression
+            except CvBridgeError as e:
+                rclpy.logerr(e)
+                self.destroy_node()
+                return
+
+            # Publish the compressed ROS image message
+            self.pubs[camera_id].publish(image_msg)
 
 
         # Populate the response
@@ -135,9 +155,6 @@ class Camera(Node):
         response.bottom_right = bottom_right
 
         return response
-
-    def __del__(self):
-        self.cleanup()  # Ensure cleanup if the object is deleted
 
 def main(args=None):
     rclpy.init(args=args)
