@@ -4,7 +4,7 @@
   <name>autonomy</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="xaok7569@colorado.edu">xavier</maintainer>
+  <maintainer email="xavier@x.com">xavier</maintainer>
   <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>

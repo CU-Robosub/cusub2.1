@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'autonomy_demo_node = autonomy.autonomy_demo_node:main'
+            'autonomy_node = autonomy.autonomy_node:main'
         ],
     },
 )
