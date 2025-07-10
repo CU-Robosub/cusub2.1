@@ -21,6 +21,14 @@ class ObjectEstimator(Node):
             10
         )
         
+        self.pose_subscription = self.create_subscription(
+            Pose,
+            '/pose',
+            self.pose_callback,
+            10
+        )
+        
+        self.robot_pose = None
         self.publisher = self.create_publisher(NamedPoseArray, '/object_poses', 10)
         
         self.get_logger().info('CV Detection Subscriber started. Waiting for messages...')
@@ -39,6 +47,9 @@ class ObjectEstimator(Node):
         except yaml.YAMLError as e:
             self.get_logger().warn(f"Error parsing YAML file: {e}")
         return yml
+    
+    def pose_callback(self, msg):
+        self.robot_pose = msg.data
         
 
     def cv_detection_callback(self, msg):
