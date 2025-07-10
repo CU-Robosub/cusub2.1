@@ -121,7 +121,7 @@ class CVDetectionNode(Node):
             cv_msg.header = Header()
             cv_msg.header.stamp = self.get_clock().now().to_msg()
             cv_msg.header.frame_id = "camera_frame"
-            cv_msg.cv_data_primative = []
+            cv_msg.detections = []
 
             for result in results:
                 boxes = result.boxes
@@ -144,7 +144,7 @@ class CVDetectionNode(Node):
                             cv_primitive.width = int(x2 - x1)
                             cv_primitive.height = int(y2 - y1)
                             
-                            cv_msg.cv_data_primative.append(cv_primitive)
+                            cv_msg.detections.append(cv_primitive)
                             self.detection_id += 1
                             
                             # Special handling for bottles (from your original code)
@@ -171,9 +171,9 @@ class CVDetectionNode(Node):
                                 self.get_logger().info(f"Bottle detected at: {h_position}")
             
             # Publish the CV data message
-            if len(cv_msg.cv_data_primative) > 0:
+            if len(cv_msg.detections) > 0:
                 self.cv_publisher.publish(cv_msg)
-                self.get_logger().info(f"Published {len(cv_msg.cv_data_primative)} detections")
+                self.get_logger().info(f"Published {len(cv_msg.detections)} detections")
             
             # Calculate and display FPS
             current_time = time.time()
