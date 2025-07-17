@@ -179,27 +179,31 @@ class cmd_convert(Node):
     ######
     # SUPER BROKEN
     ######
-    def stability_loop(self):
+    def stability_loop(self) -> dict[int, float]:
+        """Returns motor corrections for pitch and roll stabilization."""
         euler = quaternion_to_euler(self.current_pose.orientation)
-        
-        # calculate outputs
+
         roll_output = self.pid_roll.calculateOutput(euler[0], 0)
         pitch_output = self.pid_pitch.calculateOutput(euler[1], 0)
 
-        # +roll_output  -> +left motors  -right motors -> increased roll
-        # +pitch_output -> +front motors -back motors  -> increased pitch
+        # Compute per-thruster output correction (no publishing)
         fl_output = roll_output + pitch_output
         fr_output = -roll_output + pitch_output
         bl_output = roll_output - pitch_output
         br_output = -roll_output - pitch_output
 
-        [fl_output, fr_output, bl_output, br_output] = normalize_motor_outputs([fl_output, fr_output, bl_output, br_output], 1)
+        [fl_output, fr_output, bl_output, br_output] = normalize_motor_outputs(
+            [fl_output, fr_output, bl_output, br_output], 1
+        )
 
-        # apply outputs
-        self.run_motor(CHANNEL_V_FL, fl_output)
-        self.run_motor(CHANNEL_V_FR, fr_output)
-        self.run_motor(CHANNEL_V_BL, bl_output)
-        self.run_motor(CHANNEL_V_BR, br_output)
+        return {
+            CHANNEL_V_FL: fl_output,
+            CHANNEL_V_FR: fr_output,
+            CHANNEL_V_BL: bl_output,
+            CHANNEL_V_BR: br_output
+        }
+
+
 
 
     def run_motor(self, motor_channel: int, value: float):
@@ -226,42 +230,52 @@ class cmd_convert(Node):
     def pwm_to_percent(self, pwm, neutral=1490, scale=30):
         return (pwm - neutral) / scale
 
-
     def experimental_callback(self, msg):
-        z_channels = [3,4,5,6]
-        
+        z_channels = [3, 4, 5, 6]
+
         xmsg = msg.linear.x
         ymsg = msg.linear.y
         zmsg = msg.linear.z
         azmsg = msg.angular.z
-        
+
+        # Convert commands to PWM signals
         x_targetPWM = self.convert_to_PWM(xmsg)
         y_targetPWM = self.convert_to_PWM(ymsg)
         y_inv_targetPWM = self.convert_to_PWM(ymsg, invert=True)
         z_targetPWM = self.convert_to_PWM(zmsg, invert=True)
         az_targetPWM = self.convert_to_PWM(azmsg, invert=True)
         az_inv_targetPWM = self.convert_to_PWM(azmsg)
-        
-        motors = {0 : self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_inv_targetPWM])),
-                  1 : self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_inv_targetPWM])),
-                  2 : self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_targetPWM])),
-                  7 : self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_targetPWM]))}
-        
-        for motor in motors:
-            self.mc.run([motor], motors[motor], raw_pwm=True)
-            # self.get_logger().info(f"Motor {motor} PWM: {motors[motor]}")
-        self.mc.run(z_channels, z_targetPWM, raw_pwm=True)
 
-        # Update motor_values for horizontal thrusters
-        for motor in motors:
-            self.motor_values[motor] = motors[motor]
+        # Horizontal thrusters: combine x, y, az
+        motors = {
+            0: self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_inv_targetPWM])),
+            1: self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_inv_targetPWM])),
+            2: self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_targetPWM])),
+            7: self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_targetPWM]))
+        }
 
-        # Update motor_values for vertical thrusters
+        for motor, pwm in motors.items():
+            self.mc.run([motor], pwm, raw_pwm=True)
+            self.motor_values[motor] = pwm
+
+        # Step 1: Get pitch and roll stabilization outputs (in [-1, 1])
+        stability_outputs = self.stability_loop()
+
+        # Step 2: Convert base zmsg to PWM
+        base_z_pwm = self.convert_to_PWM(zmsg, invert=True)
+
+        # Step 3: Combine zmsg + stabilization correction and apply
         for motor in z_channels:
-            self.motor_values[motor] = z_targetPWM
+            correction = stability_outputs.get(motor, 0.0)  # pitch/roll correction
+            correction_pwm = int(correction * 30)           # scale to PWM units
+            combined_pwm = max(min(base_z_pwm + correction_pwm, 1650), 1330)
 
-        # Publish updated motor values
+            self.mc.run([motor], combined_pwm, raw_pwm=True)
+            self.motor_values[motor] = combined_pwm
+
+        # Final publish to topic
         self.publish_motor_values()
+
 
         
         
