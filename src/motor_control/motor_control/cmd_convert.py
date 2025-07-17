@@ -115,8 +115,8 @@ class cmd_convert(Node):
         # self.mc.clearMotors() # TODO This call throws an error
         
 
-        self.pid_pitch = PID(1, 0, 0) # pitch  angular y
-        self.pid_roll = PID(1, 0, 0)  # roll   angular x
+        self.pid_pitch = PID(0, 0, 0) # pitch  angular y
+        self.pid_roll = PID(0, 0, 0)  # roll   angular x
         
         # initialize motor_values
         self.motor_values = [0.0 for _ in range(8)]
@@ -126,7 +126,7 @@ class cmd_convert(Node):
 
     def pose_callback(self, msg):
         self.current_pose = msg
-        self.stability_loop() # keep sub level
+        # self.stability_loop() # keep sub level <- super broken rn
     
     def change_pid_values_callback(self, request, response, pid):
         if(request.kp != -1):
@@ -176,6 +176,9 @@ class cmd_convert(Node):
             self.mc.run(forward_channels,msg.angular.z, INVERT=False)
             self.mc.run(backward_channels,msg.angular.z, INVERT=True)
     
+    ######
+    # SUPER BROKEN
+    ######
     def stability_loop(self):
         euler = quaternion_to_euler(self.current_pose.orientation)
         
@@ -208,16 +211,20 @@ class cmd_convert(Node):
     def publish_motor_values(self):
         msg = ThrusterValues()
 
-        msg.front_left = float(self.motor_values[CHANNEL_FL])
-        msg.front_right = float(self.motor_values[CHANNEL_FR])
-        msg.back_left = float(self.motor_values[CHANNEL_BL])
-        msg.back_right = float(self.motor_values[CHANNEL_BR])
-        msg.top_front_left = float(self.motor_values[CHANNEL_V_FL])
-        msg.top_front_right = float(self.motor_values[CHANNEL_V_FR])
-        msg.top_back_left = float(self.motor_values[CHANNEL_V_BR])
-        msg.top_back_right = float(self.motor_values[CHANNEL_V_BL])
+        msg.front_left = self.pwm_to_percent(self.motor_values[CHANNEL_FL])
+        msg.front_right = self.pwm_to_percent(self.motor_values[CHANNEL_FR])
+        msg.back_left = self.pwm_to_percent(self.motor_values[CHANNEL_BL])
+        msg.back_right = self.pwm_to_percent(self.motor_values[CHANNEL_BR])
+        msg.top_front_left = self.pwm_to_percent(self.motor_values[CHANNEL_V_FL])
+        msg.top_front_right = self.pwm_to_percent(self.motor_values[CHANNEL_V_FR])
+        msg.top_back_left = self.pwm_to_percent(self.motor_values[CHANNEL_V_BR])
+        msg.top_back_right = self.pwm_to_percent(self.motor_values[CHANNEL_V_BL])
+
 
         self.motor_pub.publish(msg)
+
+    def pwm_to_percent(self, pwm, neutral=1490, scale=30):
+        return (pwm - neutral) / scale
 
 
     def experimental_callback(self, msg):
@@ -244,6 +251,18 @@ class cmd_convert(Node):
             self.mc.run([motor], motors[motor], raw_pwm=True)
             # self.get_logger().info(f"Motor {motor} PWM: {motors[motor]}")
         self.mc.run(z_channels, z_targetPWM, raw_pwm=True)
+
+        # Update motor_values for horizontal thrusters
+        for motor in motors:
+            self.motor_values[motor] = motors[motor]
+
+        # Update motor_values for vertical thrusters
+        for motor in z_channels:
+            self.motor_values[motor] = z_targetPWM
+
+        # Publish updated motor values
+        self.publish_motor_values()
+
         
         
     def convert_to_PWM(self, target, multiplier=30, invert=False):
