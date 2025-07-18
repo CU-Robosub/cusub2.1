@@ -1,0 +1,2 @@
+ign service -s /world/thruster/set_pose --reqtype ignition.msgs.Pose --reptype ignition.msgs.Boolean --timeout 1000 --req name: sub position: {x: 0.0, y: 0.0, z: 1.0} orientation: {x: 0.0, y: 1.0, z: 0.0, w: 1.0}
+ros2 service call /set_pid_pitch_values custom_interfaces/srv/SetPIDValues "{kp: 1.0, ki: 0.0, kd: 20.0}"

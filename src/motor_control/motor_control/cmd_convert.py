@@ -1,5 +1,5 @@
 import math
-
+import threading
 import yaml
 import rclpy
 from rclpy.node import Node
@@ -110,13 +110,20 @@ class cmd_convert(Node):
         self.pid_depth = PID()
         self.current_pose = Pose()
         self.goal_pose = Pose()
+
+        self.last_cmd_vel = Twist()
+        self.cmd_lock = threading.Lock()
+
+        self.control_timer = self.create_timer(0.05, self.calculate_motor_inputs)  # 10Hz = 0.1s
         
         # clear motors
         # self.mc.clearMotors() # TODO This call throws an error
         
 
-        self.pid_pitch = PID(0, 0, 0) # pitch  angular y
-        self.pid_roll = PID(0, 0, 0)  # roll   angular x
+        self.pid_pitch = PID(9.0, 20.0, 0.0) # pitch  angular y
+        # self.pid_pitch = PID(0.0, 0.0, 0.0) # pitch  angular y
+
+        self.pid_roll = PID(0.0, 0.0, 0.0)  # I dn't think the motors have the ability to affect this
         
         # initialize motor_values
         self.motor_values = [0.0 for _ in range(8)]
@@ -186,7 +193,6 @@ class cmd_convert(Node):
         roll_output = self.pid_roll.calculateOutput(euler[0], 0)
         pitch_output = self.pid_pitch.calculateOutput(euler[1], 0)
 
-        # Compute per-thruster output correction (no publishing)
         fl_output = roll_output + pitch_output
         fr_output = -roll_output + pitch_output
         bl_output = roll_output - pitch_output
@@ -224,19 +230,22 @@ class cmd_convert(Node):
         msg.top_back_left = self.pwm_to_percent(self.motor_values[CHANNEL_V_BR])
         msg.top_back_right = self.pwm_to_percent(self.motor_values[CHANNEL_V_BL])
 
-
         self.motor_pub.publish(msg)
 
     def pwm_to_percent(self, pwm, neutral=1490, scale=30):
         return (pwm - neutral) / scale
 
     def experimental_callback(self, msg):
+        with self.cmd_lock:
+            self.latest_cmd_vel = msg
+    
+    def calculate_motor_inputs(self):
         z_channels = [3, 4, 5, 6]
 
-        xmsg = msg.linear.x
-        ymsg = msg.linear.y
-        zmsg = msg.linear.z
-        azmsg = msg.angular.z
+        xmsg = self.last_cmd_vel.linear.x
+        ymsg = self.last_cmd_vel.linear.y
+        zmsg = self.last_cmd_vel.linear.z
+        azmsg = self.last_cmd_vel.angular.z
 
         # Convert commands to PWM signals
         x_targetPWM = self.convert_to_PWM(xmsg)

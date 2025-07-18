@@ -19,7 +19,7 @@ class AutonomyDemoNode(Node):
 
     def run_sequence(self):
         move_cmd = Twist()
-        move_cmd.linear.x = 0.3
+        move_cmd.linear.x = 1.0
 
         turn_cmd = Twist()
         turn_cmd.angular.z = 0.5
@@ -31,7 +31,7 @@ class AutonomyDemoNode(Node):
         stop_cmd = Twist()
 
         self.get_logger().info("Moving forward (1st) for 3 seconds")
-        self.publish_for_duration(move_cmd, 3.0)
+        self.publish_for_duration(move_cmd, 5.0)
 
         self.get_logger().info("Turning for 15.5 seconds")
         self.publish_for_duration(turn_cmd, 15.5)
