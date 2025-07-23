@@ -32,6 +32,7 @@ setup(
     'console_scripts': [
         'camera_node = chimera_camera.CameraPublisher:main',
         'client = chimera_camera.CameraPublisherTest:main',
+        'yolo_node = chimera_camera.detect:main',
     ],
 },
 
