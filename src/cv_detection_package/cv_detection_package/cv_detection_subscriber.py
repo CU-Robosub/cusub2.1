@@ -57,11 +57,17 @@ class ObjectEstimator(Node):
         pose_arr = NamedPoseArray()
         if (len(msg.detections)):
             for detection in msg.detections:
-                o_width, o_height = self.get_object_physical_properties(detection.id)
+                if detection.results.score < 0.3: continue # skip this object, since we have low confidence
+                o_width, o_height = self.get_object_physical_properties(detection.results.id)
                 camera_q = self.get_camera_orientation_quaternion(msg.header.frame_id)
                 camera_fl = self.get_camera_focal_length(msg.header.frame_id)
-                obj_pose = self.compute_object_position(self.robot_pose, camera_q, camera_fl, detection.x, detection.y,
-                                                        detection.width, detection.height, o_width, o_height)
+                cx, cy = self.get_camera_pxpy(msg.header.frame_id)
+                cx /= 2
+                cy /= 2
+                cx, cy = int(cx), int(cy)
+                obj_pose = self.compute_object_position(self.robot_pose, camera_q, camera_fl, detection.bbox.center.x, detection.bbox.center.y,
+                                                        detection.bbox.size_x, detection.bbox.size_y, o_width, o_height, cx, cy)
+                
                 named_pose = NamedPose()
                 named_pose.pose = obj_pose
                 named_pose.name = detection.name
@@ -110,12 +116,16 @@ class ObjectEstimator(Node):
     
     def get_camera_focal_length(self, camera_frame: str) -> int:
         return self.cameras_yaml[camera_frame]["focal_length"]
+    
+    def get_camera_pxpy(self, camera_frame: str) -> tuple[int, int]:
+        return self.cameras_yaml[camera_frame]["px"], self.cameras_yaml[camera_frame]["py"]
         
         
     
     
     def compute_object_position(self, robot_pose: Pose, camera_quaternion: Quaternion, focal_length: int, x: int, y: int,
-                                object_width: int, object_height: int, physical_width: float, physical_height: float) -> Pose:
+                                object_width: int, object_height: int, physical_width: float, 
+                                physical_height: float, cx: int, cy: int) -> Pose:
         """Computes a physical position estimate for an object based on the position of the robot,
         where the camera is positioned relative to the orientation of the robot, the objects position
         and size in the camera frame, and its physical dimentions
@@ -124,8 +134,8 @@ class ObjectEstimator(Node):
             robot_pose (Pose): position of the robot (usually obtained by subscribing to /pose)
             camera_quaterion (Quaternion): camera orientation relative to the robot's pose
             focal_length (int): Focal length of the camera
-            x (int): x position of the object in the camera
-            y (int): y position of the object in the camera
+            x (int): x position of the center of the object in the camera
+            y (int): y position of the center of the object in the camera
             object_width (int): width of the object in the camera
             object_height (int): height of the object in the camera
             physical_width (float): physical width of the object
@@ -143,7 +153,6 @@ class ObjectEstimator(Node):
             return Pose()
 
         # Compute object's center in image (assume image center is (cx, cy))
-        cx, cy = self.camera_cx, self.camera_cy  # Must be defined elsewhere, or passed in
         dx = x + object_width / 2 - cx
         dy = y + object_height / 2 - cy
 

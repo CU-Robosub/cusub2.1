@@ -3,3 +3,5 @@ camera_front:
   pitch: 0.0
   yaw: 0.0
   focal_length: 120 # mm
+  px: 1920
+  py: 1080
