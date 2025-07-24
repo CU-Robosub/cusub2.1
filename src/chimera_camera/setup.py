@@ -32,6 +32,7 @@ setup(
     'console_scripts': [
         'camera_node = chimera_camera.CameraPublisher:main',
         'client = chimera_camera.CameraPublisherTest:main',
+        'multi_camera_publisher = camera_publisher_pkg.CameraPublisherTest:main',
     ],
 },
 
