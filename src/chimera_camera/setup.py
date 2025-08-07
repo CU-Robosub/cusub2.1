@@ -33,7 +33,7 @@ setup(
         'camera_node = chimera_camera.CameraPublisher:main',
         'client = chimera_camera.CameraPublisherTest:main',
         'yolo_node = chimera_camera.detect:main',
-        'multi_camera_publisher = camera_publisher_pkg.CameraPublisherTest:main',
+        'multi_camera_publisher = chimera_camera.multi_cam_test:main',
     ],
 },
 

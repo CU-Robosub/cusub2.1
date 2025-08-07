@@ -7,60 +7,60 @@ import sys
 import threading
 import time
 
-class MultiCameraPublisher(Node):
+class TimeSlicedMultiCameraPublisher(Node):
     def __init__(self, camera_ports):
-        super().__init__('multi_camera_publisher')
+        super().__init__('time_sliced_multi_camera_publisher')
         self.camera_ports = camera_ports
-        self.publishers = {}
-        self.captures = {}
+        self.camera_publishers = {}
         self.bridge = CvBridge()
         self.running = True
+        self.current_index = 0  # Track which camera is active
 
+        # Create publishers (one per camera)
         for port in self.camera_ports:
-            cap = cv2.VideoCapture(port)
-            if not cap.isOpened():
-                self.get_logger().error(f'Failed to open camera port {port}')
-                continue
-
             topic_name = f'/image_{port}'
             pub = self.create_publisher(Image, topic_name, 10)
-            self.publishers[port] = pub
-            self.captures[port] = cap
-            self.get_logger().info(f'Camera {port} publishing to {topic_name}')
+            self.camera_publishers[port] = pub
+            self.get_logger().info(f'Publisher created for camera {port} on topic {topic_name}')
 
-        # Start the thread
+        # Start background thread
         self.thread = threading.Thread(target=self.publish_loop)
         self.thread.start()
 
     def publish_loop(self):
-        rate = self.create_rate(10)  # 10 Hz
+        rate_hz = 10  # Total loop rate (e.g., 10 Hz shared between all cameras)
+        rate = self.create_rate(rate_hz)
+
         while rclpy.ok() and self.running:
-            for port, cap in self.captures.items():
+            port = self.camera_ports[self.current_index]
+
+            cap = cv2.VideoCapture(port)
+            if not cap.isOpened():
+                self.get_logger().warning(f'Failed to open camera {port}')
+            else:
                 ret, frame = cap.read()
-                if not ret:
+                if ret:
+                    msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
+                    msg.header.stamp = self.get_clock().now().to_msg()
+                    self.camera_publishers[port].publish(msg)
+                else:
                     self.get_logger().warning(f'Failed to read frame from camera {port}')
-                    continue
-                msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
-                self.publishers[port].publish(msg)
+                cap.release()
+
+            # Move to next camera
+            self.current_index = (self.current_index + 1) % len(self.camera_ports)
             rate.sleep()
 
     def stop(self):
         self.running = False
         self.thread.join()
-        for cap in self.captures.values():
-            cap.release()
 
 def main(args=None):
-    rclpy.init(args=args)
+    rclpy.init()
 
-    # Parse camera ports from CLI arguments
-    if len(sys.argv) < 2:
-        print("Usage: ros2 run <package_name> multi_camera_publisher.py <camera_port1> <camera_port2> ...")
-        return
+    camera_ports = [0, 2, 4, 6]
 
-    camera_ports = list(map(int, sys.argv[1:]))
-
-    node = MultiCameraPublisher(camera_ports)
+    node = TimeSlicedMultiCameraPublisher(camera_ports)
 
     try:
         rclpy.spin(node)

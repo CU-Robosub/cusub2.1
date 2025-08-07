@@ -12,6 +12,7 @@ from geometry_msgs.msg import Quaternion
 from sensor_msgs.msg import Joy
 from custom_interfaces.srv import SetPIDValues
 from custom_interfaces.msg import ThrusterValues
+from std_msgs.msg import Bool
 import numpy as np
 
 DEPTH_TOLERANCE = 0.1
@@ -94,6 +95,9 @@ class cmd_convert(Node):
             'goal_pose',
             self.goal_pose_callback,
             10)
+
+        self.kill_motors_sub = self.create_subscription(Bool, '/shutdown_motors', self.shutdown_callback, 10)
+        
         
         # publish the values we send to the motor controller
         self.motor_pub = self.create_publisher(
@@ -127,6 +131,11 @@ class cmd_convert(Node):
         
         # initialize motor_values
         self.motor_values = [0.0 for _ in range(8)]
+
+    def shutdown_callback(self, msg):
+        if msg.data:
+            self.get_logger().warn("Shutdown signal received. Shutting down node.")
+            rclpy.shutdown()
 
     def goal_pose_callback(self, msg):
         self.goal_pose = msg
@@ -240,7 +249,7 @@ class cmd_convert(Node):
             self.latest_cmd_vel = msg
     
     def calculate_motor_inputs(self):
-        z_channels = [3, 4, 5, 6]
+        z_channels = [CHANNEL_V_FL, CHANNEL_V_FR, CHANNEL_V_BL, CHANNEL_V_BR]
 
         xmsg = self.last_cmd_vel.linear.x
         ymsg = self.last_cmd_vel.linear.y

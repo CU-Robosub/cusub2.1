@@ -1,3 +1,3 @@
 <launch>
-  <node pkg="chimera_camera" exec="camera_node" name="camera"/>
+  <node pkg="chimera_camera" exec="multi_camera_publisher" name="multi_cam"/>
 </launch>

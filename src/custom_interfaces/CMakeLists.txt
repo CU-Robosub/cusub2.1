@@ -15,6 +15,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DetectObjects.srv"
   "srv/SetPIDValues.srv"
   "msg/ThrusterValues.msg"
+  "srv/KillMotors.srv"
 )
 
 # uncomment the following section in order to fill in
