@@ -12,6 +12,7 @@ from geometry_msgs.msg import Quaternion
 from sensor_msgs.msg import Joy
 from custom_interfaces.srv import SetPIDValues
 from custom_interfaces.msg import ThrusterValues
+from std_msgs.msg import Bool
 import numpy as np
 
 DEPTH_TOLERANCE = 0.1
@@ -94,6 +95,9 @@ class cmd_convert(Node):
             'goal_pose',
             self.goal_pose_callback,
             10)
+
+        self.kill_motors_sub = self.create_subscription(Bool, '/shutdown_motors', self.shutdown_callback, 10)
+        
         
         # publish the values we send to the motor controller
         self.motor_pub = self.create_publisher(
@@ -120,6 +124,11 @@ class cmd_convert(Node):
         
         # initialize motor_values
         self.motor_values = [0.0 for _ in range(8)]
+
+    def shutdown_callback(self, msg):
+        if msg.data:
+            self.get_logger().warn("Shutdown signal received. Shutting down node.")
+            rclpy.shutdown()
 
     def goal_pose_callback(self, msg):
         self.goal_pose = msg
@@ -221,7 +230,7 @@ class cmd_convert(Node):
 
 
     def experimental_callback(self, msg):
-        z_channels = [3,4,5,6]
+        z_channels = [CHANNEL_V_FL, CHANNEL_V_FR, CHANNEL_V_BL, CHANNEL_V_BR]
         
         xmsg = msg.linear.x
         ymsg = msg.linear.y
@@ -235,10 +244,10 @@ class cmd_convert(Node):
         az_targetPWM = self.convert_to_PWM(azmsg, invert=True)
         az_inv_targetPWM = self.convert_to_PWM(azmsg)
         
-        motors = {0 : self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_inv_targetPWM])),
-                  1 : self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_inv_targetPWM])),
-                  2 : self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_targetPWM])),
-                  7 : self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_targetPWM]))}
+        motors = {CHANNEL_BR : self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_inv_targetPWM])),
+                  CHANNEL_FR : self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_inv_targetPWM])),
+                  CHANNEL_FL : self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_targetPWM])),
+                  CHANNEL_BL : self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_targetPWM]))}
         
         for motor in motors:
             self.mc.run([motor], motors[motor], raw_pwm=True)
