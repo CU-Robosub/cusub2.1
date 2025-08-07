@@ -56,13 +56,9 @@ class TimeSlicedMultiCameraPublisher(Node):
         self.thread.join()
 
 def main(args=None):
-    rclpy.init(args=args)
+    rclpy.init()
 
-    if len(sys.argv) < 2:
-        print("Usage: ros2 run <package_name> multi_camera_publisher.py <camera_port1> <camera_port2> ...")
-        return
-
-    camera_ports = list(map(int, sys.argv[1:]))
+    camera_ports = [0, 2, 4, 6]
 
     node = TimeSlicedMultiCameraPublisher(camera_ports)
 
