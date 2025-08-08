@@ -7,7 +7,7 @@ import rclpy
 from rclpy.node import Node
 # from .submodules import motorController # Class with motor control functions
 from sensor_msgs.msg import Joy
-from geometry_msgs.msg import Twist, Pose
+from geometry_msgs.msg import Twist, Pose, PoseStamped
 from std_msgs.msg import Bool
 import yaml
 from .motorController import motorController
@@ -34,8 +34,8 @@ class JoyListener(Node):
     def __init__(self):
         super().__init__('joyListener')
         
-        self.goalPose = Pose()
-        self.currentpose = self.create_subscription(Pose, 'pose', self.current_pose_callback, 10)
+        self.goalPose = PoseStamped()
+        self.currentpose = self.create_subscription(PoseStamped, 'pose', self.current_pose_callback, 10)
         self.timer = self.create_timer(0.2, self.publish_goal)
         self.jlinear_x = 0
         self.jlinear_y = 0
@@ -69,7 +69,7 @@ class JoyListener(Node):
             10 # overflow queue
         )
         self.goalPoseSub = self.create_subscription(
-            Pose,
+            PoseStamped,
             '/goal_pose',
             self.goal_pose_callback,
             10)
@@ -83,7 +83,7 @@ class JoyListener(Node):
             '/cmd_vel',
             10)
         self.goalPosePub = self.create_publisher(
-            Pose,
+            PoseStamped,
             '/goal_pose',
             100 # made it 100 cuz we might want backlog
         )
@@ -97,10 +97,10 @@ class JoyListener(Node):
     def publish_goal(self):
         goalPose = self.goalPose
         if self.zaxis != 0.0:
-            goalPose.position.z = float(self.get_setpoint() + DEPTH_GOAL_STEP*self.zaxis/abs(self.zaxis))
+            goalPose.pose.position.z = float(self.get_setpoint() + DEPTH_GOAL_STEP*self.zaxis/abs(self.zaxis))
             self.lastPose = float(self.get_setpoint()  + DEPTH_GOAL_STEP*self.zaxis/abs(self.zaxis))
         else:
-            goalPose.position.z = float(self.setPoint)
+            goalPose.pose.position.z = float(self.setPoint)
         
         self.goalPosePub.publish(goalPose)
         real = self.currentPosition.position.z
@@ -117,18 +117,9 @@ class JoyListener(Node):
 
     def autonamous_status_callback(self, msg):
         self.autonamous_status = msg.data
-    def controller_callback(self, msg):
-        self.goalPose = msg
+
     def current_pose_callback(self, msg):
         self.currentPosition = msg
-    # def listener_callback(self, msg): # test fxn for joy_node
-    #     mc = motorController()
-    #     if(msg.axes[1] != 0): # trigger button
-    #         channels = [0,1,2,3,4,5,6,7] # dummy channel list
-    #         mc.run(channels,msg.axes[1])
-
-    # def publish_goal(self, msg):
-    #     goalPose = self.goal()
 
     def listener_callback(self, msg):
         # Need to adjust values
@@ -222,7 +213,7 @@ class JoyListener(Node):
         self.publish_cmd()
 
     def goal_pose_callback(self, msg):
-        self.setPoint = msg.position.z
+        self.setPoint = msg.pose.position.z
     
     def get_setpoint(self):
         return self.setPoint

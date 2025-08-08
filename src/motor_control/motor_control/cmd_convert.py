@@ -7,7 +7,7 @@ from rclpy.publisher import Publisher
 from .motorController import motorController # Class with motor control functions
 from .PID_controller import PID
 from geometry_msgs.msg import Twist
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped
 from geometry_msgs.msg import Quaternion
 from sensor_msgs.msg import Joy
 from custom_interfaces.srv import SetPIDValues
@@ -86,12 +86,12 @@ class cmd_convert(Node):
             10)
         self.last_msg_time = self.get_clock().now()
         self.pose_sub = self.create_subscription(
-            Pose,
+            PoseStamped,
             'pose',
             self.pose_callback,
             10)
         self.goal_pose_sub = self.create_subscription(
-            Pose,
+            PoseStamped,
             'goal_pose',
             self.goal_pose_callback,
             10)
@@ -112,8 +112,8 @@ class cmd_convert(Node):
         
         self.mc = motorController()
         self.pid_depth = PID()
-        self.current_pose = Pose()
-        self.goal_pose = Pose()
+        self.current_pose = PoseStamped()
+        self.goal_pose = PoseStamped()
 
         self.last_cmd_vel = Twist()
         self.cmd_lock = threading.Lock()
@@ -153,54 +153,22 @@ class cmd_convert(Node):
 
         response.success = True
         return response
-
-    def listener_callback(self, msg): # test fxn for joy_node
-        if(msg.linear.x > 0): # only send a command when vel is not 0
-            channels = [0,1,2,7] # dummy channel list
-            self.mc.run(channels,msg.linear.x, INVERT=False, raw_pwm=False)
-        elif(msg.linear.x < 0):
-            channels = [0,1,2,7] # dummy channel list
-            self.mc.run(channels,msg.linear.x, INVERT=False, raw_pwm=False)
-        if(msg.linear.y > 0): # only send a command when vel is not 0
-            forward_channels = [7,1] # dummy channel list
-            backward_channels = [2,0] # dummy channel list
-            self.mc.run(forward_channels,msg.linear.y, INVERT=False)
-            self.mc.run(backward_channels,msg.linear.y, INVERT=True)
-        elif(msg.linear.y < 0): # only send a command when vel is not 0
-            forward_channels = [2,0] # dummy channel list
-            backward_channels = [7,1] # dummy channel list
-            self.mc.run(forward_channels,msg.linear.y, INVERT=True)
-            self.mc.run(backward_channels,msg.linear.y, INVERT=False)
-        if(msg.linear.x == 0 and msg.linear.y == 0 and msg.angular.z == 0):
-            channels = [0,1,2,7]
-            self.mc.killAll(channels)
-        if (self.current_pose.position.z > self.goal_pose.position.z + DEPTH_TOLERANCE or self.current_pose.position.z < self.goal_pose.position.z - DEPTH_TOLERANCE):
-            channels = [3,4,5,6]
-            self.mc.runDepthPID(channels, self.current_pose.position.z, self.goal_pose.position.z, self.pid_depth)
-        else:
-            channels = [3,4,5,6]
-            self.mc.killAll(channels)
-        if(msg.angular.z > 0): # spin left?
-            forward_channels = [7,2] # dummy channel list
-            backward_channels = [0,1] # dummy channel list
-            self.mc.run(forward_channels,msg.angular.z, INVERT=True)
-            self.mc.run(backward_channels,msg.angular.z, INVERT=False)
-        elif(msg.angular.z < 0): # spin right?
-            forward_channels = [0,1] # dummy channel list
-            backward_channels = [7,2] # dummy channel list
-            self.mc.run(forward_channels,msg.angular.z, INVERT=False)
-            self.mc.run(backward_channels,msg.angular.z, INVERT=True)
     
     ######
     # SUPER BROKEN
     ######
     def stability_loop(self) -> dict[int, float]:
         """Returns motor corrections for pitch and roll stabilization."""
-        euler = quaternion_to_euler(self.current_pose.orientation)
+        euler = quaternion_to_euler(self.current_pose.pose.orientation)
 
         roll_output = self.pid_roll.calculateOutput(euler[0], 0)
         pitch_output = self.pid_pitch.calculateOutput(euler[1], 0)
-        depth_output = self.pid_depth.calculateOutput(self.current_pose[2], self.goal_pose[2]) # experimental
+
+        # Access z from position of the pose inside PoseStamped
+        depth_output = self.pid_depth.calculateOutput(
+            self.current_pose.pose.position.z,
+            self.goal_pose.pose.position.z
+        )  # experimental
 
         fl_output = roll_output + pitch_output
         fr_output = -roll_output + pitch_output
@@ -217,6 +185,7 @@ class cmd_convert(Node):
             CHANNEL_V_BL: bl_output,
             CHANNEL_V_BR: br_output
         }
+
 
 
 
