@@ -109,7 +109,7 @@ class JoyListener(Node):
             zCommand = -DEPTH_K* (self.currentPosition.position.z - self.goal.position.z)
             zCommand = max(-5.0, min(5.0, zCommand))
             self.jlinear_z = zCommand
-            # self.slinear_z = zCommand ####### uncommented 8/7
+            self.slinear_z = zCommand
         else:
             self.jlinear_z = 0.0
             self.slinear_z = 0.0
@@ -244,10 +244,10 @@ class JoyListener(Node):
         else:
             twist_msg.linear.y = float(self.slinear_y)
             
-        if self.jlinear_z is not None and self.jlinear_z != 0:
-            twist_msg.linear.z = float(self.jlinear_z)
-        else:
-            twist_msg.linear.z = float(self.slinear_z)
+        # if self.jlinear_z is not None and self.jlinear_z != 0:
+        #     twist_msg.linear.z = float(self.jlinear_z)
+        # else:
+        twist_msg.linear.z = float(self.slinear_z)
             
         if self.jangular_z is not None and self.jangular_z != 0:
             twist_msg.angular.z = float(self.jangular_z)

@@ -30,10 +30,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
     'console_scripts': [
-        'camera_node = chimera_camera.CameraPublisher:main',
+        'camera_node = chimera_camera.camera_node:main',
+        'coordinator_node = chimera_camera.coordinator_node:main',
         'client = chimera_camera.CameraPublisherTest:main',
         'yolo_node = chimera_camera.detect:main',
-        'multi_camera_publisher = chimera_camera.multi_cam_test:main',
     ],
 },
 

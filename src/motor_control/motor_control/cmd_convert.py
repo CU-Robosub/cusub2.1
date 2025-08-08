@@ -200,6 +200,7 @@ class cmd_convert(Node):
 
         roll_output = self.pid_roll.calculateOutput(euler[0], 0)
         pitch_output = self.pid_pitch.calculateOutput(euler[1], 0)
+        depth_output = self.pid_depth.calculateOutput(self.current_pose[2], self.goal_pose[2]) # experimental
 
         fl_output = roll_output + pitch_output
         fr_output = -roll_output + pitch_output
@@ -265,10 +266,10 @@ class cmd_convert(Node):
 
         # Horizontal thrusters: combine x, y, az
         motors = {
-            0: self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_inv_targetPWM])),
-            1: self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_inv_targetPWM])),
-            2: self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_targetPWM])),
-            7: self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_targetPWM]))
+            CHANNEL_BL: self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_inv_targetPWM])),
+            CHANNEL_BR: self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_inv_targetPWM])),
+            CHANNEL_FL: self.calculate_motor_PWM(np.array([x_targetPWM, y_inv_targetPWM, az_targetPWM])),
+            CHANNEL_FR: self.calculate_motor_PWM(np.array([x_targetPWM, y_targetPWM, az_targetPWM]))
         }
 
         for motor, pwm in motors.items():
@@ -279,7 +280,7 @@ class cmd_convert(Node):
         stability_outputs = self.stability_loop()
 
         # Step 2: Convert base zmsg to PWM
-        base_z_pwm = 0 #self.convert_to_PWM(zmsg, invert=True)
+        base_z_pwm = self.convert_to_PWM(zmsg, invert=True)
 
         # Step 3: Combine zmsg + stabilization correction and apply
         for motor in z_channels:
