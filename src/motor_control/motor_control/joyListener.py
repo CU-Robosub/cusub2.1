@@ -108,8 +108,10 @@ class JoyListener(Node):
         if real+DEPTH_TOLERANCE < goal3  or goal3 < real - DEPTH_TOLERANCE:
             zCommand = -DEPTH_K* (self.currentPosition.position.z - self.goal.position.z)
             zCommand = max(-5.0, min(5.0, zCommand))
-            self.jlinear_z = zCommand
-            # self.slinear_z = zCommand ####### uncommented 8/7
+            # self.jlinear_z = zCommand
+            # self.slinear_z = zCommand
+            self.jlinear_z = 0.0
+            self.slinear_z = 0.0
         else:
             self.jlinear_z = 0.0
             self.slinear_z = 0.0
