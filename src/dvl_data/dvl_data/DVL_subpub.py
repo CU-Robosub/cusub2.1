@@ -10,7 +10,7 @@ import rclpy
 from rclpy.node import Node
 # from wldvl import WlDVL
 from std_msgs.msg import String
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 import serial
 import math
 from .dvl_tcp_parser import datareader
@@ -22,14 +22,14 @@ class DVL(Node):
     def __init__(self):
         super().__init__('DVLPublisher')
         self.rawrecpub = self.create_publisher(String, 'dvl_raw_deadrec_data', 10)
-        self.posepub = self.create_publisher(Pose, 'pose', 10)
-        self.goalposepub = self.create_publisher(Pose, 'goal_pose', 10)
+        self.posepub = self.create_publisher(PoseStamped, 'pose', 10)
+        self.goalposepub = self.create_publisher(PoseStamped, 'goal_pose', 10)
         self.dvl = datareader()
         self.dvl.connect_dvl()
         #if (self.dvl.is_connected()):
         #    self.get_logger.info("Calibrating gyro...",str(self.dvl.calibrate_gyro()))
         #    self.get_logger.info("Resetting dead reckoning...",str(self.dvl.calibrate_gyro()))
-        self.posemsg = Pose()
+        self.posemsg = PoseStamped()
         self.didinitialpose = False
 
         self.timer_ = self.create_timer(0.2, self.publish_data)  # Call data_callback every 0.2 seconds (dead reckoning report update cycle is 5hz)
@@ -63,14 +63,16 @@ class DVL(Node):
         if (data is None):
              return
         parsed_data = json.loads(data)
-        self.posemsg.position.x = parsed_data['x']
-        self.posemsg.position.y = parsed_data['y']
-        self.posemsg.position.z = parsed_data['z']
+        self.posemsg.header.stamp = self.get_clock().now().to_msg()
+        self.posemsg.header.frame_id = 'map'
+        self.posemsg.pose.position.x = parsed_data['x']
+        self.posemsg.pose.position.y = parsed_data['y']
+        self.posemsg.pose.position.z = parsed_data['z']
         angdata = self.euler_to_quaternion(parsed_data['roll'],parsed_data['pitch'],parsed_data['yaw'])
-        self.posemsg.orientation.x = angdata[0]
-        self.posemsg.orientation.y = angdata[1]
-        self.posemsg.orientation.z = angdata[2]
-        self.posemsg.orientation.w = angdata[3]
+        self.posemsg.pose.orientation.x = angdata[0]
+        self.posemsg.pose.orientation.y = angdata[1]
+        self.posemsg.pose.orientation.z = angdata[2]
+        self.posemsg.pose.orientation.w = angdata[3]
         return self.posemsg
 
 

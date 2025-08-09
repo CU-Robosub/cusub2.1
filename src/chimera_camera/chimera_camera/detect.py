@@ -7,13 +7,20 @@ from cv_bridge import CvBridge
 import cv2
 from ultralytics import YOLO
 import os
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+reliable_qos = QoSProfile(
+    reliability=ReliabilityPolicy.RELIABLE,
+    history=HistoryPolicy.KEEP_LAST,
+    depth=10
+)
 
 
 class YoloDetectorNode(Node):
     def __init__(self):
         super().__init__('yolo_detector_node')
 
-        self.model_path = self.declare_parameter('model_path', 'src/chimera_camera/chimera_camera/weights.pt').get_parameter_value().string_value
+        self.model_path = self.declare_parameter('model_path', 'src/chimera_camera/chimera_camera/yolo11m.pt').get_parameter_value().string_value
         self.image_path = self.declare_parameter('image_path', 'images.jpeg').get_parameter_value().string_value
         self.publish_topic = self.declare_parameter('detection_topic', 'yolo/detections').get_parameter_value().string_value
 
@@ -28,7 +35,8 @@ class YoloDetectorNode(Node):
         
         self.bridge = CvBridge()
 
-        self.image_sub = self.create_subscription(Image, 'image_raw', self.image_callback, 10)
+        self.image_sub = self.create_subscription(Image, '/camera_6/image_raw', self.image_callback, reliable_qos)
+        self.get_logger().info(f"Subscribed to /camera_8/image_raw with sensor data QoS")
 
         # Uncomment this line to test with fixed image instead of subscriber
         # self.run_on_fixed_image()

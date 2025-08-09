@@ -6,9 +6,9 @@ def generate_launch_description():
         Node(
             package='chimera_camera',
             executable='camera_node',
-            name=f'camera_{i}_node',
+            name=f'camera_{i * 2}_node',
             output='screen',
-            arguments=[str(i)]
+            arguments=[str(i * 2)]
         )
         for i in range(4)
     ]

@@ -63,3 +63,7 @@ src/chimera_camera/chimera_camera/runs/
 src/chimera_camera/chimera_camera/*.png
 src/chimera_camera/chimera_camera/*.jpeg
 src/chimera_camera/chimera_camera/*.jpg
+
+# Image rec messages or sum
+
+src/vision_msgs

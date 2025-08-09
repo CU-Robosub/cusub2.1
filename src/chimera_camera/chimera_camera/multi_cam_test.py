@@ -58,7 +58,7 @@ class TimeSlicedMultiCameraPublisher(Node):
 def main(args=None):
     rclpy.init()
 
-    camera_ports = [0, 2, 4, 6]
+    camera_ports = [0]
 
     node = TimeSlicedMultiCameraPublisher(camera_ports)
 
