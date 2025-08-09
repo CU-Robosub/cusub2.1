@@ -111,7 +111,7 @@ class cmd_convert(Node):
         self.change_pid_pitch_values = self.create_service(SetPIDValues, "set_pid_pitch_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_pitch))
         
         self.mc = motorController()
-        self.pid_depth = PID()
+        self.pid_depth = PID(10.0, 0.0, 0.0)
         self.current_pose = PoseStamped()
         self.goal_pose = PoseStamped()
 
