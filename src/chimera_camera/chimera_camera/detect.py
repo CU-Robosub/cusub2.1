@@ -20,7 +20,7 @@ class YoloDetectorNode(Node):
     def __init__(self):
         super().__init__('yolo_detector_node')
 
-        self.model_path = self.declare_parameter('model_path', 'src/chimera_camera/chimera_camera/yolo11m.pt').get_parameter_value().string_value
+        self.model_path = self.declare_parameter('model_path', 'src/chimera_camera/chimera_camera/weights.pt').get_parameter_value().string_value
         self.image_path = self.declare_parameter('image_path', 'images.jpeg').get_parameter_value().string_value
         self.publish_topic = self.declare_parameter('detection_topic', 'yolo/detections').get_parameter_value().string_value
 
@@ -35,7 +35,7 @@ class YoloDetectorNode(Node):
         
         self.bridge = CvBridge()
 
-        self.image_sub = self.create_subscription(Image, '/camera_6/image_raw', self.image_callback, reliable_qos)
+        self.image_sub = self.create_subscription(Image, '/camera_0/image_raw', self.image_callback, reliable_qos)
         self.get_logger().info(f"Subscribed to /camera_8/image_raw with sensor data QoS")
 
         # Uncomment this line to test with fixed image instead of subscriber
@@ -63,7 +63,8 @@ class YoloDetectorNode(Node):
         detection_array_msg.header.stamp = self.get_clock().now().to_msg()
 
         if len(results) == 0:
-            self.get_logger().warn("No detections found in image.")
+            pass
+            # self.get_logger().warn("No detections found in image.")
         else:
             result = results[0]
             boxes = result.boxes
@@ -105,14 +106,16 @@ class YoloDetectorNode(Node):
 
                 detection_array_msg.detections.append(det)
 
-                self.get_logger().info(f"Detected {class_name} (class {class_id}) with confidence {confidence:.2f} at ({center_x:.1f}, {center_y:.1f})")
+                if confidence > 0.7:
+                    self.get_logger().info(f"Detected {class_name} (class {class_id}) with confidence {confidence:.2f} at ({center_x:.1f}, {center_y:.1f})")
+
 
         self.detections_pub.publish(detection_array_msg)
-        self.get_logger().info(f"Published {len(detection_array_msg.detections)} detections")
+        # self.get_logger().info(f"Published {len(detection_array_msg.detections)} detections")
 
     def image_callback(self, msg: Image):
         """Callback for processing incoming image messages"""
-        self.get_logger().info("Received image topic")
+        # self.get_logger().info("Received image topic")
         
         try:
             cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')

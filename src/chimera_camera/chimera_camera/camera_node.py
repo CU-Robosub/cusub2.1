@@ -1,9 +1,11 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
 from sensor_msgs.msg import Image
 from std_msgs.msg import Bool
 from cv_bridge import CvBridge
 import cv2
+import time
 
 class CameraNode(Node):
     def __init__(self, camera_id):
@@ -12,8 +14,9 @@ class CameraNode(Node):
         self.device_path = f"/dev/video{camera_id}"
         self.bridge = CvBridge()
         self.enabled = False
+        self.cap = None
 
-        self.publisher = self.create_publisher(Image, f'/camera_{camera_id}/image_raw', 10)
+        self.publisher = self.create_publisher(Image, f'/camera_{camera_id}/image_raw', 1)
         self.subscription = self.create_subscription(
             Bool,
             f'/camera_{camera_id}/enable',
@@ -21,20 +24,36 @@ class CameraNode(Node):
             10
         )
 
-        # Keep camera open
-        self.cap = cv2.VideoCapture(self.device_path)
-        if not self.cap.isOpened():
-            self.get_logger().error(f"Could not open {self.device_path}")
-
-        self.timer = self.create_timer(0.05, self.capture_frame)  # 20 FPS max
+        self.timer = self.create_timer(1.0 / 15.0, self.capture_frame)
 
     def enable_callback(self, msg: Bool):
-        self.enabled = msg.data
-        state = "ENABLED" if self.enabled else "DISABLED"
-        self.get_logger().info(f"Camera {self.camera_id} {state}")
+        new_state = msg.data
+        if new_state and not self.enabled:
+            # Enable: open camera
+            self.cap = cv2.VideoCapture(self.device_path)
+            if not self.cap.isOpened():
+                self.get_logger().error(f"Could not open {self.device_path}")
+                self.cap = None
+                return
+
+            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            self.cap.set(cv2.CAP_PROP_FPS, 15)
+            self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
+            self.get_logger().info(f"Camera {self.camera_id} ENABLED and opened")
+        elif not new_state and self.enabled:
+            # Disable: release camera
+            if self.cap is not None:
+                self.cap.release()
+                time.sleep(1.0)
+                self.cap = None
+            self.get_logger().info(f"Camera {self.camera_id} DISABLED and released")
+        self.enabled = new_state
 
     def capture_frame(self):
-        if not self.enabled:
+        if not self.enabled or self.cap is None:
             return
         ret, frame = self.cap.read()
         if ret:
@@ -42,8 +61,10 @@ class CameraNode(Node):
             self.publisher.publish(img_msg)
 
     def destroy_node(self):
-        self.cap.release()
+        if self.cap is not None:
+            self.cap.release()
         super().destroy_node()
+
 
 
 def main(args=None):

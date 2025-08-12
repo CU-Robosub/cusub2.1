@@ -16,6 +16,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/SetPIDValues.srv"
   "msg/ThrusterValues.msg"
   "srv/KillMotors.srv"
+  "srv/SendPWM.srv"
 )
 
 # uncomment the following section in order to fill in

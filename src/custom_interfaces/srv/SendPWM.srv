@@ -1,0 +1,6 @@
+# SendPWM.srv
+
+int8[] channels
+int32 value
+---
+bool success

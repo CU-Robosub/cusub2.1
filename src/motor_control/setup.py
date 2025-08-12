@@ -28,7 +28,8 @@ setup(
         'console_scripts': [
             'cmd_convert = motor_control.cmd_convert:main',
             'joy_listener = motor_control.joyListener:main',
-            'motor_kill = motor_control.motorKill:main'
+            'motor_kill = motor_control.motorKill:main',
+            'send_pwm = motor_control.pwm_send_service:main'
         ],
     },
 )

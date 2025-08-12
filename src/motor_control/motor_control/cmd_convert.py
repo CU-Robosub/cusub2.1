@@ -14,6 +14,7 @@ from custom_interfaces.srv import SetPIDValues
 from custom_interfaces.msg import ThrusterValues
 from std_msgs.msg import Bool
 import numpy as np
+from custom_interfaces.srv import KillMotors
 
 DEPTH_TOLERANCE = 0.1
 
@@ -111,7 +112,7 @@ class cmd_convert(Node):
         self.change_pid_pitch_values = self.create_service(SetPIDValues, "set_pid_pitch_values", lambda request, response : self.change_pid_values_callback(request, response, self.pid_pitch))
         
         self.mc = motorController()
-        self.pid_depth = PID(10.0, 0.0, 0.0)
+        self.pid_depth = PID(0.0, 0.0, 0.0)
         self.current_pose = PoseStamped()
         self.goal_pose = PoseStamped()
 
@@ -130,7 +131,7 @@ class cmd_convert(Node):
         # self.mc.clearMotors() # TODO This call throws an error
         
 
-        self.pid_pitch = PID(100.0, 0.0, 0.0) # pitch  angular y
+        self.pid_pitch = PID(1.0, 0.0, 0.0) # pitch  angular y
 
         self.pid_roll = PID(0.0, 0.0, 0.0)  # I dn't think the motors have the ability to affect this
         
@@ -262,7 +263,8 @@ class cmd_convert(Node):
 
             for motor in [CHANNEL_V_FL, CHANNEL_V_FR, CHANNEL_V_BL, CHANNEL_V_BR]:
                 correction = stability_outputs.get(motor, 0.0)
-                correction_pwm = int(correction * 30)
+                correction_pwm = int(correction * 100) # max correction pwm allowed
+                
                 combined_pwm = max(min(base_z_pwm + correction_pwm, 1650), 1330)
                 self.mc.run([motor], combined_pwm, raw_pwm=True)
                 self.motor_values[motor] = combined_pwm
@@ -290,15 +292,35 @@ class cmd_convert(Node):
         return max(min(round(neutral + np.sum(pwm_set - neutral)), 1650), 1330)
 
 
+def call_kill_motors(node: Node):
+    """Synchronous call to the /kill_motors service."""
+    client = node.create_client(KillMotors, '/kill_motors')
+
+    # Wait for service to be available
+    if not client.wait_for_service(timeout_sec=3.0):
+        node.get_logger().info('/kill_motors service not available')
+        return
+
+    req = KillMotors.Request()
+    future = client.call_async(req)
+    rclpy.spin_until_future_complete(node, future)
+
+    if future.result() is not None:
+        node.get_logger().info('Successfully called /kill_motors')
+    else:
+        node.get_logger().error(f'Failed to call /kill_motors: {future.exception()}')
+
+
 def main(args=None):
     rclpy.init(args=args)
+    node = cmd_convert()
 
-    convert = cmd_convert()
-
-    rclpy.spin(convert)
-
-    convert.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    finally:
+        call_kill_motors(node)  # Always call before shutdown
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
